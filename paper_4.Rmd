@@ -1,0 +1,1337 @@
+---
+title             : "Decomposing fish species distribution to identify characteristic spatial patterns"
+shorttitle        : "EOF"
+
+author: 
+  - name          : "First Author"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "my@email.com"
+  - name          : "Second author"
+    affiliation   : "1,2"
+
+affiliation:
+  - id            : "1"
+    institution   : "Institution 1"
+  - id            : "2"
+    institution   : "Institution 2"
+
+authornote: |
+  Add authornote
+
+abstract: |
+  
+  Here goes the abstract
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["paper_4.bib"]
+
+numbersections    : no
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass    : "apa6"
+classoption      : "man"
+header-includes:
+   - \usepackage{graphicx}
+
+output            : papaja::apa6_pdf
+ # papaja::apa6_word:
+    # reference_docx: mystyles_number_test.docx
+
+---
+
+```{r setup, include = FALSE}
+
+library(cowplot)
+library(colorspace)
+library(FactoMineR)
+library(papaja)
+library(rnaturalearth)
+library(sf)
+library(tidyverse)
+
+ggplotColours <- function(n = 6, h = c(0, 360) + 15){
+  if ((diff(h) %% 360) < 1) h[2] <- h[2] - 360/n
+  hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
+}
+
+# Map
+mapBase <- ne_countries(scale = "medium", returnclass = "sf")
+grid_projection <- "+proj=longlat +datum=WGS84"
+
+run_code <- T
+
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+Species phenology --> major uncertainty
+
+While key in understanding species life cycle and has major ecological and conservation implications.
+
+
+
+# Methods
+
+## Species, data and model outputs
+
+### Case studies
+
+We selected sole and sea bass in the Bay of Biscay as well as Hake in both the Bay of Biscay and the Celtic Sea as case studies. These three case studies are selected as they all benefit from scientific and expert knowledge regarding their phenology in order to validate the results of their analysis.
+
+Sole of the Bay of Biscay reproduce.
+
+Sea bass in the Bay of Biscay is .
+
+Hake in the Bay of Biscay and in the Celtic Sea is considered as one single stock. Still, there is question about the 
+
+To map species distribution, we filtered the data from several trawler fleets from 2008 to 2018.
+
+### Data
+
+### Model and model outputs format
+
+## Decomposing model outputs
+
+### EOF
+
+Empirical Orthogonal Functions is a method that has been developped by @lorenz1956empirical for weather forecasting applications. The original aim of the technic was to deduce from a set of spatio-temporal maps a smaller set of maps that best describe and summarise the spatio-temporal process of interest. The main idea was to define the spatio-temporal process $S(x,t)$ as a linear combination of spatial patterns $p_m$ (named EOF) each related to temporal indices $\alpha_m(t)$ (Equation \ref{eq:EOF} - $x\in[\![1,N]\!],t\in[\![1,T]\!]$). These temporal indices indicate when the spatio-temporal process is distributed following their related spatial pattern. 
+
+\begin{align} \label{eq:EOF}
+S(x,t)=\sum_{m=1}^M \alpha_m(t) \cdot p_m(x) + r^M(x,t)
+\end{align}
+
+where $r^M(x,t)$ is the residual variation not captured by the $M$ modes of variation $\alpha_m(t) \cdot p(m,x)$.
+
+
+
+
+To estimate the temporal components $\alpha_m(t)$ and the spatial patterns $p(m,x)$, some criteria need to be set. A natural choice is to minimize the residual variation to best capture the variability $S(x,t)$ (i.e.  $R^M=\sum^M_{m=1}(r^M_m)^2$ is minimized) and set orthogonal constraints between the modes of variability so that each mode is the 'best' representation of variability from a statistical point of view (Equations \ref{eq:Orthog1}, \ref{eq:Orthog2}). This last criteria is further discussed in the discussion.
+
+\begin{align}
+\label{eq:Orthog1}
+\sum^N_{x=1} p_m(x) \cdot p_j(x) = \delta_{mj} \equiv \Bigg \{ \begin{array}{lll}1 & \text { if } & m=j \\ 0 & \text { if } & m \neq j\end{array}
+\end{align}
+
+\begin{align}
+\label{eq:Orthog2}
+T \cdot \overline{p_m^* p_j^*} = a_m \delta_{mj}
+\end{align}
+
+with $a_m	\geq a_{m+1} \geq 0$, $\overline{( \ )}$ denoting the time average and $( \ )^*$ a departure from the time average.
+
+Let's write these equations in matrix terms by introducing the $T \times N$ matrix $\mathbf{S}$, $\mathbf{S}^*$, $\mathbf{Q}$, $\mathbf{Q}^*$. They respectively refer to $S(x,t)$, $S^*(x,t)$, $\alpha_m(t)$ and $\alpha_m^*(t)$. We denote $\mathbf{Y}$ is a square matrix of order $N$ with elements $p_{m}(x)$ (NEED TO CHECK). Then, the problem can be reformulated as:
+
+\begin{align}
+& \mathbf{S}=\mathbf{QY} \\
+& \mathbf{YY}^T=\mathbf{I} \\
+& {\mathbf{Q}^{*}}^T\mathbf{Q} = \mathbf{D}
+\end{align}
+
+with $\overline{(\ )}$ the transpose, $\mathbf{I}$ the identity, $\mathbf{D}$ a diagonal matrix with diagonal being equal to $a_m / T$.
+
+Finally, by introducing $A \equiv {Q^*}^T Q^*$ (whose elements are proportionnal to the covariance of $\alpha_m(t)$), we can rewrite these equations as:
+
+\begin{align}
+\label{eq:Diag}
+\mathbf{YAY}^T=\mathbf{D}
+\end{align}
+
+This is a standard "eigenvalue-eigenvector" problem. As a consequence, a link can be done with standard multivariate analysis such as PCA. Thus, in addition to the spatial patterns (and the related temporal components) that appear in the EOF formulations (Equation \ref{eq:EOF}) and that can be obtained by diagonalysing the problem in Equation \ref{eq:Diag}, additionnal analysis can be performed to obtain similar visualisation as in PCA (e.g. plot of individuals and variables) possibly coupled with standard clustering analysis.
+
+### Link with PCA
+
+In this representation (Equation \ref{eq:Diag}), $\mathbf{Y}^T=X$ is the matrix of $p_{m}(x)$ which are the eigen-vectors in PCA analysis, $A$ is the covariance matrix of the centered predictions $\mathbf{S}^*$ (TO CHECK) and $\mathbf{D}$ is the diagonal matrix of the eigen-values.
+
+Often, this equation cannot be resolved as the A matrix is not diagonalisable (when there are more spatial locations than time-steps). Then, it is required to pass through singular value decomposition to get the eigen-values and eigen-vectors of $A$.
+
+Singluar value decomposition (svd) express a matrix $\mathbf{X}$ as a decomposition of 3 other matrices: 
+
+$\mathbf{X}=\mathbf{U} \mathbf{\Lambda} \mathbf{V}^{\prime}$ with $\mathbf{U U}^{\prime}=\mathbf{U}^{\prime} \mathbf{U}=\mathbf{I}$ and $\mathbf{V V}^{\prime}=\mathbf{V}^{\prime} \mathbf{V}=\mathbf{I}$.
+
+From these expressions, we can demonstrate that $\mathbf{XX}^{\prime} = \mathbf{V}^{\prime} \mathbf{\Lambda}^2 \mathbf{V}$ with $\mathbf{\Lambda}^2$ the eigen-values and $\mathbf{V}$ the eigen-vectors of the covariance matrix $\mathbf{XX}^{\prime}$. The eigen-values and eigen-vectors of the covariance matrix $\mathbf{A}$ where obtained from svd and allowed to performed the same analysis as in standard PCA (more precisely a PCA is a svd on centered or centered-reduced data if the PCA is normalized).
+
+
+### Representing variables and individuals
+
+Then, we analyse the spatio-temporal model outputs by presenting the spatial patterns $p_m(x)$ (i.e. the eigen-vectors) which are in the matrix $\mathbf{X}=\mathbf{V}$. These can be seen as maps that structure the actual process $\mathbf{S}$ (Cf. Figure...) or alternatively as standard variable plot as in classical PCA analysis (Cf. Figure...).
+
+The temporal index $\alpha_m(t)$ are the projection matrix $\mathbf{S}^*$ onto the EOF basis function $\mathbf{V}$ i.e. $A=\mathbf{S}^*\mathbf{X}=\mathbf{U} \mathbf{\Lambda}$. These can be either seen as time series (Cf. Figure...) or as a classical plot of individuals on the first components of the PCA (Cf. Figure...).
+
+When confronted together, the spatial representations and the related temporal indices inform how the spatial patterns vary in time.
+
+**FIGURE: LINK BETWEEN EOF AND PCA**
+
+Spectral analysis:
+- https://bookdown.org/rdpeng/timeseriesbook/spectral-analysis.html
+- https://math.mcmaster.ca/~bolker/eeid/2010/Ecology/Spectral.pdf
+
+```{r make data}
+
+if(run_code){
+  
+  n_EOF <- 6
+  # 1st Merluccius_merluccius: BoB, 2nd Merluccius_merluccius: CS
+  main_c <- c("Solea_solea","Merluccius_merluccius","Merluccius_merluccius","Dicentrarchus_labrax")
+  species_name <- c("Sole","Hake_BoB","Hake_CS","Seabass")
+  raw_biomass_spp <- c("Dicentrarchus_labrax","Merluccius_merluccius")
+  raw_biom <- T
+  standardize <- "none"
+  Zt_list <- list()
+  V_list  <- list()
+  E_list <- list()
+  PC_list <- list()
+  EOF_maps <- list()
+  EOF_PC <- list()
+  eigen_values <- list()
+  loc_x_list <- list()
+  mean_patt <- list()
+  
+  for(i in 1:length(main_c)){
+    
+    ## Shape model outputs
+    ##--------------------
+    # Load data
+    load(paste0("data/",main_c[i],"/S_x_df_",main_c[i],"_standardise.RData"))
+    
+    # Shape data
+    if(main_c[i] %in% raw_biomass_spp & raw_biom == F){
+      
+      Biomass_df <- S_x_df %>%
+        group_by(year,month) %>%
+        dplyr::summarise(Ab=sum(S_x))
+      
+      S_x_df <- inner_join(S_x_df,Biomass_df)
+      if(!"cell" %in% colnames(S_x_df)) S_x_df <- dplyr::rename(S_x_df,cell=key)
+      
+      S_x_df <- S_x_df %>%
+        mutate(S_x = S_x / Ab)
+      
+    }
+    
+    if((!main_c[i] %in% raw_biomass_spp) & raw_biom == T){
+      
+      S_x_df <- S_x_df %>%
+        mutate(S_x = S_x * Ab)
+      
+    }
+    
+    if(standardize == "year"){
+      
+      stand_df <- S_x_df %>%
+        group_by(year) %>%
+        dplyr::summarise(stand_const=sum(S_x))
+      
+      S_x_df <- inner_join(S_x_df,stand_df)
+      if(!"cell" %in% colnames(S_x_df)) S_x_df <- dplyr::rename(S_x_df,cell=key)
+      
+      S_x_df <- S_x_df %>%
+        mutate(S_x = S_x / stand_const)
+      
+    }
+    
+    if(i==2){
+      S_x_df <- S_x_df %>%
+        filter(str_detect(strata,"Gn|Gs"))
+    }
+    
+    if(i==3){
+      S_x_df <- S_x_df %>%
+        filter(str_detect(strata,"Cc|Cn|Cs"))
+    }
+    
+    S_x_df <- S_x_df %>%
+      dplyr::rename(Month = month,
+                    Year = year) %>%
+      mutate(Year_Month = paste0(Year,"_",ifelse(Month<10,paste0("0",Month),Month))) %>%
+      dplyr::select(-t)
+    
+    # Make time step dataframe
+    year_start <- min(S_x_df$Year)
+    year_end <- max(S_x_df$Year)
+    year_vec <- unique(S_x_df$Year) # time period
+    month_vec <- 1:12
+    quarter_month_df <- data.frame(Month=1:12,Quarter=rep(1:4,each = 3))
+    time.step_df <- expand.grid(1:12,year_start:year_end)
+    colnames(time.step_df) <- c("Month","Year")
+    time.step_df <- time.step_df %>%
+      inner_join(quarter_month_df) %>%
+      mutate(Year_Month = paste0(Year,"_",ifelse(Month<10,paste0("0",Month),Month)),
+             t = 1:nrow(time.step_df))
+    
+    S_x_df <- S_x_df %>%
+      inner_join(time.step_df)
+    
+    # Location dataframe
+    loc_x_pred <- S_x_df %>%
+      dplyr::select(cell,x,y) %>%
+      group_by(cell,x,y) %>%
+      slice(1) %>%
+      arrange(cell) %>%
+      as.data.frame
+    
+    loc_x_list[[i]] <- loc_x_pred
+    
+    ## Make the T x N matrix for conducting EOF
+    EOF_mat <- S_x_df %>%
+      dplyr::select(cell,Year_Month,S_x) %>%
+      pivot_wider(names_from = Year_Month,values_from = S_x) %>%
+      as.matrix() %>% t()
+    EOF_mat <- EOF_mat[-1,]
+    
+    ## Decomposing EOF
+    ##----------------
+    ## Center EOF_mat
+    spat_mean <- apply(EOF_mat, 2, mean)
+    nT <- nrow(EOF_mat)
+    Zspat_detrend <- EOF_mat - outer(rep(1, nT), spat_mean)
+    Zt <- Zspat_detrend # 1/sqrt(nT - 1)*
+    Zt_list[[i]] <- Zt
+    
+    mean_patt[[i]] <- cbind(loc_x_pred,spat_mean)
+    
+    
+    ## Conduct svd (singular vector decomposition)
+    # svd
+    E <- svd(Zt)
+    E_list[[i]] <- E
+    
+    # eigen values
+    L=E$d*E$d # singular values # /(nrow(Zt)-1)
+    pct=L/sum(L) # explained variance
+    
+    eigen_df <- data.frame(dim=1:length(L),
+                           sg_val=L,
+                           perc_var=pct,
+                           cum_sum=cumsum(pct))
+    
+    eigen_values[[i]] <- eigen_df
+    
+    # x11()
+    # plot(pct,ylim=c(0,max(pct)+0.01))
+    # text(x = 1:length(pct),y=pct+0.005)
+    # 
+    # x11()
+    # plot(cumsum(pct),ylim=c(0,max(cumsum(pct))+0.01))
+    # text(x = 1:length(pct),y=cumsum(pct)+0.005)
+    
+    # Spatial patterns
+    V <- E$v # %*% sqrt(diag(E$d))
+    colnames(E$v) <- paste0("EOF", 1:nrow(EOF_mat))
+    colnames(V) <- paste0("EOF", 1:nrow(EOF_mat)) # label columns
+    V_list[[i]] <- V
+    
+    EOFs <- cbind(loc_x_pred[,c("x","y","cell")], V)
+    
+    EOFs_2 <- EOFs %>%
+      select_at(c("x","y","cell",paste0("EOF",1:n_EOF))) %>%
+      pivot_longer(cols = starts_with("EOF")) %>%
+      dplyr::rename(EOF = name) %>%
+      filter(EOF %in% c(paste0("EOF",1:n_EOF)))
+    
+    # Correlation of variables with axis
+    c_sigma_Z <- apply(Zt, 2,var)
+    mat_sigma_Z <- 1/sqrt(diag(c_sigma_Z))
+    mat_sigma_Z[which(is.infinite(mat_sigma_Z))] <- 0
+    corrPCVar <- mat_sigma_Z %*% V %*% sqrt(diag(E$d))
+    
+    colnames(corrPCVar) <- paste0("EOF", 1:nrow(EOF_mat)) # label columns
+    corrPCVar_df <- cbind(loc_x_pred[,c("x","y","cell")], corrPCVar)
+    corrPCVar_df_2 <- corrPCVar_df %>%
+      select_at(c("x","y","cell",paste0("EOF",1:n_EOF))) %>%
+      pivot_longer(cols = starts_with("EOF")) %>%
+      dplyr::rename(EOF = name,corrPCVar=value) %>%
+      filter(EOF %in% c(paste0("EOF",1:n_EOF)))
+    
+    EOFs_3 <- inner_join(EOFs_2,corrPCVar_df_2)
+    
+    
+    # Contribution of variables to axis
+    ContribVar <- E$v^2
+    colnames(ContribVar) <- paste0("EOF", 1:nrow(EOF_mat)) # label columns
+    ContribVar_df <- cbind(loc_x_pred[,c("x","y","cell")],ContribVar)
+    
+    ContribVar_df_2 <- ContribVar_df %>%
+      select_at(c("x","y","cell",paste0("EOF",1:n_EOF))) %>%
+      pivot_longer(cols = starts_with("EOF")) %>%
+      dplyr::rename(EOF = name,ContribVar=value) %>%
+      filter(EOF %in% c(paste0("EOF",1:n_EOF)))
+    
+    EOFs_4 <- inner_join(EOFs_3,ContribVar_df_2)
+    
+    EOF_maps[[i]] <- EOFs_4
+    
+    # Temporal indices
+    EOFset1 <- E$u[1:(nT),]
+    EOFset1 <- EOFset1 %>% data.frame
+    
+    PC_list[[i]] <- EOFset1
+    
+    colnames(EOFset1) <- paste0("PC",1:n_EOF)
+    EOFset1 <- EOFset1[,1:n_EOF]
+    EOFset1_2 <- EOFset1 %>%
+      mutate(t = 1:nrow(EOFset1)) %>%
+      pivot_longer(cols = starts_with("PC")) %>%
+      dplyr::rename(PC = name) %>%
+      filter(PC %in% c(paste0("PC",1:n_EOF))) %>%
+      inner_join(time.step_df)
+    
+    EOF_PC[[i]] <- EOFset1_2
+    
+  }
+  
+  save(data = EOF_maps,file = "res/EOF_maps.RData")
+  save(data = EOF_PC,file = "res/EOF_PC.RData")
+  save(data = eigen_values,file = "res/eigen_values.RData")
+  save(data = Zt_list,file = "res/Zt_list.RData")
+  save(data = E_list,file = "res/E_list.RData")
+  save(data = loc_x_list,file = "res/loc_x_list.RData")
+  
+}
+
+```
+
+
+# Results
+
+## Strong seasonnal patterns
+
+```{r}
+
+if(run_code){
+  
+  ## Percentage of variance
+  for(i in 1:length(main_c)){
+    
+    perc_var <- eigen_values[[i]]$perc_var
+    eigen_vec <- perc_var[order(perc_var,decreasing = T)][1:15]
+    eigen_df <- data.frame(perc_var = eigen_vec, dim = 1:15,spp = species_name[i])
+    
+    if(i==1) eigen_df_full <- eigen_df
+    if(i!=1) eigen_df_full <- rbind(eigen_df,eigen_df_full)
+    
+  }
+  
+  eigen_df_full$spp <- factor(eigen_df_full$spp,levels = c(species_name))
+  
+  vert_bar <- data.frame(dim = c(6.5,2.5,2.5,1.5), spp = species_name)
+  eigen_df_plot <- ggplot(eigen_df_full,
+                          aes(x = dim, y = perc_var * 100))+
+    geom_bar(stat = "identity",fill="steelblue")+
+    facet_wrap(.~factor(spp),scales = "free_y")+
+    theme_classic()+
+    theme(aspect.ratio = 1)+
+    ylab("Percentage of variance (%)")+xlab("Dimension")+
+    geom_vline(data=vert_bar,aes(xintercept = dim),
+               color = "red",size=0.75,linetype="dashed")
+  
+  ggsave(filename = "images/eigen_df_plot.png",width = 5,height = 5)
+  
+  ################################
+  ## Plot EOF maps and time series
+  ################################
+  n_dim_filter <- c(6,2,2,1)
+  
+  ## Sole
+  #------
+  i=1
+  xlims <- range(pretty(EOF_maps[[i]]$x))
+  ylims <- range(pretty(EOF_maps[[i]]$y))
+  
+  EOF_maps_spp <- EOF_maps[[i]] %>%
+    filter(EOF %in% paste0("EOF",c(1:n_dim_filter[i])))
+  EOF_PC_spp <- EOF_PC[[i]] %>%
+    filter(PC %in% paste0("PC",c(1:n_dim_filter[i])))
+  
+  color_name <- ggplotColours(n = n_dim_filter[i])
+  list_EOF_map_sole <- list()
+  list_EOF_PC_sole <- list()
+  for(j in 1:n_dim_filter[i]){
+    
+    EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
+    
+    EOF_map_plot <- ggplot()+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) >= 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.75,shape=16)+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) < 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.5,shape=16,alpha=0.2)+
+      scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
+      theme_bw()+
+      xlab("") + ylab("")+
+      geom_sf(data = mapBase) +
+      coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+      theme(legend.title = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            axis.text.x = element_text(angle = 90))+
+      facet_wrap(.~EOF)
+    list_EOF_map_sole[[j]] <- EOF_map_plot
+    
+    EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
+    EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
+                                   aes(x=Year_Month,y=value,group=PC))+
+      geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
+                 linetype="dashed", color = "skyblue", size = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
+      geom_line(size=1,color=color_name[j])+
+      theme_bw()+
+      xlab("")+ylab("")+
+      theme()+
+      facet_wrap(.~PC,nrow = n_EOF/2)+
+      theme(axis.text.x = element_blank(),
+            legend.position = "none",
+            aspect.ratio = c(1/4),
+            plot.margin = margin(2, 2, 2, 2, unit = "pt"),
+            plot.title = element_text(hjust=0.5,face = "bold"))+
+      geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
+      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+                    y = -Inf, label = "2018"),
+                col= "black", hjust = 1, vjust = 2)+
+      coord_cartesian(clip = "off")
+    list_EOF_PC_sole[[j]] <- EOF_time_series_plot
+  }
+  
+  EOF_sole <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
+                        list_EOF_PC_sole[[2]],list_EOF_map_sole[[2]],
+                        list_EOF_PC_sole[[3]],list_EOF_map_sole[[3]],
+                        list_EOF_PC_sole[[4]],list_EOF_map_sole[[4]],
+                        list_EOF_PC_sole[[5]],list_EOF_map_sole[[5]],
+                        list_EOF_PC_sole[[6]],list_EOF_map_sole[[6]],
+                        nrow = n_dim_filter[i]/2,align = "v",
+                        rel_widths = c(1.05,0.5,1.05,0.5))
+  
+  ggsave(filename = "images/Solea_solea/EOF_map_plot.png",width = 30/1.5,height = 15/1.5)
+  
+  
+  EOF_sole_pres <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
+                             list_EOF_PC_sole[[2]],list_EOF_map_sole[[2]],
+                             nrow = 2,align = "v",
+                             rel_widths = c(1.05,0.5))
+  
+  ggsave(filename = "images/Solea_solea/pres_EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
+  
+  ## Hake - BoB
+  #------------
+  i=2
+  xlims <- range(pretty(EOF_maps[[i]]$x))
+  ylims <- range(pretty(EOF_maps[[i]]$y))
+  
+  EOF_maps_spp <- EOF_maps[[i]] %>%
+    filter(EOF %in% paste0("EOF",c(1:n_dim_filter[i])))
+  EOF_PC_spp <- EOF_PC[[i]] %>%
+    filter(PC %in% paste0("PC",c(1:n_dim_filter[i])))
+  
+  color_name <- ggplotColours(n = n_dim_filter[i])
+  list_EOF_map_hake_bob <- list()
+  list_EOF_PC_hake_bob <- list()
+  for(j in 1:n_dim_filter[i]){
+    
+    EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
+    EOF_map_plot <- ggplot()+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) >= 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.75,shape=16)+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) < 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.5,shape=16,alpha=0.2)+
+      scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
+      theme_bw()+
+      xlab("") + ylab("")+
+      geom_sf(data = mapBase) +
+      coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+      theme(legend.title = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            axis.text.x = element_text(angle = 90))+
+      facet_wrap(.~EOF)
+    
+    list_EOF_map_hake_bob[[j]] <- EOF_map_plot
+    
+    EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
+    EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
+                                   aes(x=Year_Month,y=value,group=PC))+
+      geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
+                 linetype="dashed", color = "skyblue", size = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
+      geom_line(size=1,color=color_name[j])+
+      theme_bw()+
+      xlab("")+ylab("")+
+      theme()+
+      facet_wrap(.~PC,nrow = n_EOF/2)+
+      theme(axis.text.x = element_blank(),
+            legend.position = "none",
+            aspect.ratio = c(1/4),
+            plot.margin = margin(2, 2, 2, 2, unit = "pt"),
+            plot.title = element_text(hjust=0.5,face = "bold"))+
+      geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
+      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+                    y = -Inf, label = "2018"),
+                col= "black", hjust = 1, vjust = 2)+
+      coord_cartesian(clip = "off")
+    list_EOF_PC_hake_bob[[j]] <- EOF_time_series_plot
+  }
+  
+  EOF_hake_bob <- plot_grid(list_EOF_PC_hake_bob[[1]],list_EOF_map_hake_bob[[1]],
+                            list_EOF_PC_hake_bob[[2]],list_EOF_map_hake_bob[[2]],
+                            nrow = 2,align = "v",
+                            rel_widths = c(1.05,0.5))
+  
+  ggsave(filename = "images/Merluccius_merluccius_bob/EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
+  
+  ## Hake - CS
+  #------------
+  i=3
+  xlims <- range(pretty(EOF_maps[[i]]$x))
+  ylims <- range(pretty(EOF_maps[[i]]$y))
+  
+  EOF_maps_spp <- EOF_maps[[i]] %>%
+    filter(EOF %in% paste0("EOF",c(1:n_dim_filter[i])))
+  EOF_PC_spp <- EOF_PC[[i]] %>%
+    filter(PC %in% paste0("PC",c(1:n_dim_filter[i])))
+  
+  color_name <- ggplotColours(n = n_dim_filter[i])
+  list_EOF_map_hake_cs <- list()
+  list_EOF_PC_hake_cs <- list()
+  for(j in 1:n_dim_filter[i]){
+    
+    EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
+    EOF_map_plot <- ggplot()+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) >= 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.75,shape=16)+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) < 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.5,shape=16,alpha=0.2)+
+      scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
+      theme_bw()+
+      xlab("") + ylab("")+
+      geom_sf(data = mapBase) +
+      coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+      theme(legend.title = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            axis.text.x = element_text(angle = 90))+
+      facet_wrap(.~EOF)
+    
+    list_EOF_map_hake_cs[[j]] <- EOF_map_plot
+    
+    EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
+    EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
+                                   aes(x=Year_Month,y=value,group=PC))+
+      geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
+                 linetype="dashed", color = "skyblue", size = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
+      geom_line(size=1,color=color_name[j])+
+      theme_bw()+
+      xlab("")+ylab("")+
+      theme()+
+      facet_wrap(.~PC,nrow = n_EOF/2)+
+      theme(axis.text.x = element_blank(),
+            legend.position = "none",
+            aspect.ratio = c(1/4),
+            plot.margin = margin(2, 2, 2, 2, unit = "pt"),
+            plot.title = element_text(hjust=0.5,face = "bold"))+
+      geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
+      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+                    y = -Inf, label = "2018"),
+                col= "black", hjust = 1, vjust = 2)+
+      coord_cartesian(clip = "off")
+    list_EOF_PC_hake_cs[[j]] <- EOF_time_series_plot
+  }
+  
+  EOF_hake_cs <- plot_grid(list_EOF_PC_hake_cs[[1]],list_EOF_map_hake_cs[[1]],
+                           list_EOF_PC_hake_cs[[2]],list_EOF_map_hake_cs[[2]],
+                           nrow = 2,align = "v",
+                           rel_widths = c(1.05,0.5))
+  
+  ggsave(filename = "images/Merluccius_merluccius_CS/EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
+  
+  ## Seabass
+  #---------
+  i=4
+  xlims <- range(pretty(EOF_maps[[i]]$x))
+  ylims <- range(pretty(EOF_maps[[i]]$y))
+  
+  EOF_maps_spp <- EOF_maps[[i]] %>%
+    filter(EOF %in% paste0("EOF",c(1:n_dim_filter[i])))
+  EOF_PC_spp <- EOF_PC[[i]] %>%
+    filter(PC %in% paste0("PC",c(1:n_dim_filter[i])))
+  
+  color_name <- ggplotColours(n = n_dim_filter[i])
+  list_EOF_map_seabass <- list()
+  list_EOF_PC_seabass <- list()
+  for(j in 1:n_dim_filter[i]){
+    EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
+    EOF_map_plot <- ggplot()+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) >= 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = -value),size = 0.75,shape=16)+
+      geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) < 1/nrow(loc_x_pred)),],
+                 aes(x = x, y = y, col = value),size = 0.5,shape=16,alpha=0.2)+
+      scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
+      theme_bw()+
+      xlab("") + ylab("")+
+      geom_sf(data = mapBase) +
+      coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+      theme(legend.title = element_blank(),
+            panel.background = element_rect(fill = "white"),
+            axis.text.x = element_text(angle = 90))+
+      facet_wrap(.~EOF)
+    list_EOF_map_seabass[[j]] <- EOF_map_plot
+    
+    EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
+    EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
+                                   aes(x=Year_Month,y=-value,group=PC))+
+      geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
+                 linetype="dashed", color = "skyblue", size = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
+      geom_line(size=1,color=color_name[j])+
+      theme_bw()+
+      xlab("")+ylab("")+
+      theme()+
+      facet_wrap(.~PC,nrow = n_EOF/2)+
+      theme(axis.text.x = element_blank(),
+            legend.position = "none",
+            aspect.ratio = c(1/4),
+            plot.margin = margin(2, 2, 2, 2, unit = "pt"),
+            plot.title = element_text(hjust=0.5,face = "bold"))+
+      geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
+      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+                    y = -Inf, label = "2018"),
+                col= "black", hjust = 1, vjust = 2)+
+      coord_cartesian(clip = "off")
+    list_EOF_PC_seabass[[j]] <- EOF_time_series_plot
+  }
+  
+  EOF_seabass <- plot_grid(list_EOF_PC_seabass[[1]],list_EOF_map_seabass[[1]],
+                           nrow = n_dim_filter[i],align = "v",
+                           rel_widths = c(1.05,0.5))
+  
+  ggsave(filename = "images/Dicentrarchus_Labrax/EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 3))
+  
+  EOF_seabass_pres <- plot_grid(list_EOF_PC_seabass[[1]],list_EOF_map_seabass[[1]],
+                                NULL,NULL,
+                                nrow = 2,align = "v",
+                                rel_widths = c(1.05,0.5))
+  
+  ggsave(filename = "images/Dicentrarchus_Labrax/pres_EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
+  
+  
+  ## Make full picture
+  title_sole <- ggdraw() + draw_label("Sole",
+                                      hjust = 0.5,
+                                      fontface='bold.italic',
+                                      color = "darkgrey",
+                                      size = 18)
+  
+  title_hake_bob <- ggdraw() + draw_label("Hake - BoB",
+                                          hjust = 0.5,
+                                          fontface='bold.italic',
+                                          color = "darkgrey",
+                                          size = 18)
+  
+  title_hake_cs <- ggdraw() + draw_label("Hake - CS",
+                                         hjust = 0.5,
+                                         fontface='bold.italic',
+                                         color = "darkgrey",
+                                         size = 18)
+  
+  title_seabass <- ggdraw() + draw_label("Sea bass",
+                                         hjust = 0.5,
+                                         fontface='bold.italic',
+                                         color = "darkgrey",
+                                         size = 18)
+  
+  EOF_sole <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
+                        list_EOF_PC_sole[[2]],list_EOF_map_sole[[2]],
+                        nrow = 2,align = "v",
+                        rel_widths = c(1,0.6))
+  
+  EOF_sole <- plot_grid(title_sole,EOF_sole,rel_heights = c(0.1,1),ncol=1)
+  
+  EOF_hake_bob <- plot_grid(list_EOF_PC_hake_bob[[1]],list_EOF_map_hake_bob[[1]],
+                            list_EOF_PC_hake_bob[[2]],list_EOF_map_hake_bob[[2]],
+                            nrow = 2,align = "v",
+                            rel_widths = c(1,0.6))
+  
+  EOF_hake_bob <- plot_grid(title_hake_bob,EOF_hake_bob,rel_heights = c(0.1,1),ncol=1)
+  
+  EOF_hake_cs <- plot_grid(list_EOF_PC_hake_cs[[1]],list_EOF_map_hake_cs[[1]],
+                           list_EOF_PC_hake_cs[[2]],list_EOF_map_hake_cs[[2]],
+                           nrow = 2,align = "v",
+                           rel_widths = c(1,0.6))
+  
+  EOF_hake_cs <- plot_grid(title_hake_cs,EOF_hake_cs,rel_heights = c(0.1,1),ncol=1)
+  
+  
+  EOF_seabass <- plot_grid(list_EOF_PC_seabass[[1]],list_EOF_map_seabass[[1]],
+                           NULL,NULL,
+                           nrow = 2,align = "v",
+                           rel_widths = c(1,0.6))
+  
+  EOF_seabass <- plot_grid(title_seabass,EOF_seabass,rel_heights = c(0.1,1),ncol=1)
+  
+  EOF_full <- plot_grid(EOF_sole,EOF_seabass,EOF_hake_bob,EOF_hake_cs,ncol=2,align="v")
+  
+  ggsave(filename = "images/EOF_map_plot.png",width = 20,height = 15)
+  
+}
+
+```
+
+--> 2 first capture around 20% each and often very seasonnal
+
+--> seasonnal PC, coincide with reproduction ecology
+  --> result from migration patterns ?
+
+--> Northward move for Hake and Sole
+
+
+## Identifying seasons and functional zones
+
+
+```{r}
+
+if(run_code){
+  
+  # Sole
+  #-----
+  ## Clustering on time
+  i=1
+  trimestre <- as.factor(rep(c(1,1,1,2,2,2,3,3,3,4,4,4),11))
+  mois <- as.factor(rep(c(1:12),11))
+  hcpc_data <- as.data.frame(as.matrix(PC_list[[i]]) %*% diag(E_list[[i]]$d))
+  res_t <- HCPC(hcpc_data,nb.clust = 3,graph = F)
+  clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
+                           dim2=res_t$data.clust[,2],
+                           clust=res_t$data.clust$clust,
+                           Year_Month=time.step_df$Year_Month)
+  
+  var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Sole")]
+  var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Sole")]
+  
+  clust_t_plot <- ggplot(data=clust_t_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust,
+                             # shape=trimestre,
+                             label=Year_Month))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point(size=1)+
+    geom_text(nudge_y = 1.4,check_overlap = T)+
+    theme_minimal()+scale_color_brewer(palette = "Set1")+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Time steps projection")
+  
+  ggsave(filename = "images/Solea_solea/EOF_clust_t_plot.png",width = 7.5,height = 7.5)
+  
+  png(paste0("images/Solea_solea/EOF_t_tree_Sole.png"),res = 75,pointsize = 1/(6*75))
+  
+  plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  ## Clustering on space
+  hcpc_data <- as.data.frame(V_list[[i]] %*% diag(E_list[[i]]$d))
+  res_x <- HCPC(hcpc_data,nb.clust = 6,graph = F) # 2 or 6
+  
+  xlims <- range(pretty(loc_x_list[[i]]$x))
+  ylims <- range(pretty(loc_x_list[[i]]$y))
+  
+  clust_x_df <- cbind(loc_x_list[[i]],
+                      dim1=res_x$data.clust[,1],
+                      dim2=res_x$data.clust[,2],
+                      dim3=res_x$data.clust[,3],
+                      clust=res_x$data.clust$clust)
+  
+  clust_map_plot <- ggplot(data=clust_x_df)+
+    geom_point(aes(x=x,y=y,col=factor(clust)))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)") +
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Locations cluster")+
+    scale_color_brewer(palette="Spectral")
+  
+  clust_x_plot <- ggplot(data=clust_x_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point()+
+    theme_minimal()+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Locations projection")+
+    scale_color_brewer(palette="Spectral")
+  
+  mean_patt_plot <- ggplot(data = mean_patt[[i]])+
+    geom_point(aes(x=x,y=y,col=spat_mean))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)") +
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Mean pattern")+
+    scale_color_distiller(palette="Spectral")
+  
+  clust_plot_sole <- plot_grid(clust_t_plot,
+                               mean_patt_plot,
+                               clust_x_plot,
+                               clust_map_plot,
+                               align = "hv",nrow = 2)
+  
+  ggsave(paste0("images/Solea_solea/EOF_clust_x_sole.png"),
+         width=10,height=10)
+  
+  
+  png(paste0("images/Solea_solea/EOF_x_tree_sole.png"),
+      res = 75,pointsize = 1/(3*75))
+  
+  plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  
+  # Hake - BoB
+  #-----------
+  ## Clustering on time
+  i=2
+  hcpc_data <- as.data.frame(as.matrix(PC_list[[i]]) %*% diag(E_list[[i]]$d))
+  res_t <- HCPC(hcpc_data,nb.clust = 2,graph = F)
+  clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
+                           dim2=res_t$data.clust[,2],
+                           clust=res_t$data.clust$clust,
+                           Year_Month=time.step_df$Year_Month)
+  
+  var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Hake_BoB")]
+  var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Hake_BoB")]
+  
+  clust_t_plot <- ggplot(data=clust_t_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust,
+                             # shape=trimestre,
+                             label=Year_Month))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point(size=1)+
+    geom_text(nudge_y = 1.4,check_overlap = T)+
+    theme_minimal()+scale_color_brewer(palette = "Set1")+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())
+  
+  ggsave(filename = "images/Merluccius_merluccius_bob/EOF_clust_t_plot_hake_bob.png",width = 7.5,height = 7.5)
+  
+  png(paste0("images/Merluccius_merluccius_bob/EOF_t_tree_hake_bob.png"),res = 75,pointsize = 1/(6*75))
+  
+  plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  ## Clustering on space
+  hcpc_data <- as.data.frame(V_list[[i]] %*% diag(E_list[[i]]$d))
+  res_x <- HCPC(hcpc_data,nb.clust = 2,graph = F)
+  
+  xlims <- range(pretty(loc_x_list[[i]]$x))
+  ylims <- range(pretty(loc_x_list[[i]]$y))
+  
+  clust_x_df <- cbind(loc_x_list[[i]],
+                      dim1=res_x$data.clust[,1],
+                      dim2=res_x$data.clust[,2],
+                      dim3=res_x$data.clust[,3],
+                      clust=res_x$data.clust$clust)
+  
+  clust_map_plot <- ggplot(data=clust_x_df)+
+    geom_point(aes(x=x,y=y,col=factor(clust)))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)")+
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    scale_color_brewer(palette="Set2")
+  
+  clust_x_plot <- ggplot(data=clust_x_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point()+
+    theme_minimal()+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    scale_color_brewer(palette="Set2")
+  
+  mean_patt_plot <- ggplot(data = mean_patt[[i]])+
+    geom_point(aes(x=x,y=y,col=spat_mean))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)") +
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Mean pattern")+
+    scale_color_distiller(palette="Spectral")
+  
+  clust_plot_hake_bob <- plot_grid(clust_t_plot,
+                                   mean_patt_plot,
+                                   clust_x_plot,
+                                   clust_map_plot,
+                                   align = "hv",nrow = 2)
+  
+  ggsave(paste0("images/Merluccius_merluccius_bob/EOF_clust_x_plot_hake_bob.png"),
+         width=10,height=10)
+  
+  
+  png(paste0("images/Merluccius_merluccius_bob/EOF_x_tree_hake_bob.png"),
+      res = 75,pointsize = 1/(3*75))
+  
+  plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  # Hake - CS
+  #----------
+  ## Clustering on time
+  i=3
+  hcpc_data <- as.data.frame(as.matrix(PC_list[[i]]) %*% diag(E_list[[i]]$d))
+  res_t <- HCPC(hcpc_data,nb.clust = 2,graph = F)
+  clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
+                           dim2=res_t$data.clust[,2],
+                           clust=res_t$data.clust$clust,
+                           Year_Month=time.step_df$Year_Month)
+  
+  var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Hake_CS")]
+  var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Hake_CS")]
+  
+  clust_t_plot <- ggplot(data=clust_t_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust,
+                             # shape=trimestre,
+                             label=Year_Month))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point(size=1)+
+    geom_text(nudge_y = 1.4,check_overlap = T)+
+    theme_minimal()+scale_color_brewer(palette = "Set1")+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())
+  
+  ggsave(filename = "images/Merluccius_merluccius_cs/EOF_clust_t_plot_hake_cs.png",width = 7.5,height = 7.5)
+  
+  png(paste0("images/Merluccius_merluccius_cs/EOF_t_tree_hake_cs.png"),res = 75,pointsize = 1/(6*75))
+  
+  plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  ## Clustering on space
+  hcpc_data <- as.data.frame(V_list[[i]] %*% diag(E_list[[i]]$d))
+  res_x <- HCPC(hcpc_data,nb.clust = 3 + 3,graph = F)
+  
+  xlims <- range(pretty(loc_x_list[[i]]$x))
+  ylims <- range(pretty(loc_x_list[[i]]$y))
+  
+  clust_x_df <- cbind(loc_x_list[[i]],
+                      dim1=res_x$data.clust[,1],
+                      dim2=res_x$data.clust[,2],
+                      dim3=res_x$data.clust[,3],
+                      clust=res_x$data.clust$clust)
+  
+  clust_map_plot <- ggplot(data=clust_x_df)+
+    geom_point(aes(x=x,y=y,col=factor(clust)))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)")+
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    scale_color_brewer(palette="Set2")
+  
+  clust_x_plot <- ggplot(data=clust_x_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point()+
+    theme_minimal()+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    scale_color_brewer(palette="Set2")
+  
+  mean_patt_plot <- ggplot(data = mean_patt[[i]])+
+    geom_point(aes(x=x,y=y,col=spat_mean))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)") +
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Mean pattern")+
+    scale_color_distiller(palette="Spectral")
+  
+  clust_plot_hake_cs <- plot_grid(clust_t_plot,
+                                   mean_patt_plot,
+                                   clust_x_plot,
+                                   clust_map_plot,
+                                   align = "hv",nrow = 2)
+  
+  ggsave(paste0("images/Merluccius_merluccius_cs/EOF_clust_x_hake_cs.png"),
+         width=10,height=10)
+  
+  png(paste0("images/Merluccius_merluccius_cs/EOF_x_tree_hake_cs.png"),
+      res = 75,pointsize = 1/(3*75))
+  
+  plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  
+  
+  # Sea bass
+  #---------
+  ## Clustering on time
+  i=4
+  hcpc_data <- as.data.frame(as.matrix(PC_list[[i]]) %*% diag(E_list[[i]]$d))
+  res_t <- HCPC(hcpc_data,nb.clust = 2,graph = F)
+  clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
+                           dim2=res_t$data.clust[,2],
+                           clust=res_t$data.clust$clust,
+                           Year_Month=time.step_df$Year_Month)
+  
+  var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Seabass")]
+  var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Seabass")]
+  
+  clust_t_plot <- ggplot(data=clust_t_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust,
+                             # shape=trimestre,
+                             label=Year_Month))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point(size=1)+
+    geom_text(nudge_y = 1.4,check_overlap = T)+
+    theme_minimal()+scale_color_brewer(palette = "Set1")+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())
+  
+  ggsave(filename = "images/Dicentrarchus_Labrax/EOF_clust_t_plot_seabass.png",width = 7.5,height = 7.5)
+  
+  png(paste0("images/Dicentrarchus_Labrax/EOF_t_tree_seabass.png"),res = 75,pointsize = 1/(6*75))
+  
+  plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  ## Clustering on space
+  hcpc_data <- as.data.frame(V_list[[i]] %*% diag(E_list[[i]]$d))
+  res_x <- HCPC(hcpc_data,nb.clust = 2 + 2,graph = F)
+  
+  xlims <- range(pretty(loc_x_list[[i]]$x))
+  ylims <- range(pretty(loc_x_list[[i]]$y))
+  
+  clust_x_df <- cbind(loc_x_list[[i]],
+                      dim1=res_x$data.clust[,1],
+                      dim2=res_x$data.clust[,2],
+                      dim3=res_x$data.clust[,3],
+                      clust=res_x$data.clust$clust)
+  
+  clust_map_plot <- ggplot(data=clust_x_df)+
+    geom_point(aes(x=x,y=y,col=factor(clust)))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)")+
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    scale_color_brewer(palette="Set2")
+  
+  clust_x_plot <- ggplot(data=clust_x_df,
+                         aes(x=dim1,y=dim2,
+                             col=clust))+
+    geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+    geom_point()+
+    theme_minimal()+
+    xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+    ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    scale_color_brewer(palette="Set2")
+  
+  
+  mean_patt_plot <- ggplot(data = mean_patt[[i]])+
+    geom_point(aes(x=x,y=y,col=spat_mean))+
+    theme_minimal()+
+    theme(aspect.ratio = 1,
+          plot.title = element_text(hjust=0.5))+
+    xlab("Longitude (deg)") + ylab("Latitude (deg)") +
+    geom_sf(data = mapBase) +
+    coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+    theme(plot.title = element_text(hjust=0.5),
+          legend.title = element_blank())+
+    ggtitle("Mean pattern")+
+    scale_color_distiller(palette="Spectral")
+  
+  
+  clust_plot_seabass <- plot_grid(clust_t_plot,
+                                   mean_patt_plot,
+                                   clust_x_plot,
+                                   clust_map_plot,
+                                   align = "hv",nrow = 2)
+  
+  ggsave(paste0("images/Dicentrarchus_Labrax/EOF_clust_x_seabass.png"),
+         width=10,height=10)
+  
+  
+  png(paste0("images/Dicentrarchus_Labrax/EOF_x_tree_seabass.png"),
+      res = 75,pointsize = 1/(3*75))
+  
+  plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
+       draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
+       new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+       centers.plot=FALSE)
+  
+  dev.off()
+  
+  test <- plot_grid(title_sole,clust_plot_sole,
+                    title_hake_bob,clust_plot_hake_bob,
+                    title_hake_cs,clust_plot_hake_cs,
+                    title_seabass,clust_plot_seabass,
+                    nrow = 4,rel_widths = c(0.25,1))
+  
+  ggsave(paste0("images/EOF_clust.png"),
+         width=13.5,height=13.5)
+  
+}
+
+```
+
+
+
+
+--> result of clustering on temporal indices and related groups
+
+High inter-annual stability, no confusion between month/cluster
+
+--> related spatial patterns
+
+
+# Discussion
+
+- Northward move --> climate change ?
+
+- EOM ? Constraints to build the maps
+
+--> 'best' representation of variability from a statistical point of view = 'second basis function should be spatially uncorrelated with the first, and this is equivalent to the requirement of spatial orthogonality'
+
+[@lorenz1956empirical;@randall2003empirical]
+
+[@monahan2009empirical]
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup
+
+
+```{r SM plot}
+
+## For sole - seasonal patterns
+
+Season_df <- S_x_df
+Season_df$season <- NA
+Season_df$season[which(Season_df$Month %in% c(12,1,2))] <- "December - February"
+Season_df$season[which(Season_df$Month %in% c(3,4,5,6))] <- "March - June"
+Season_df$season[which(Season_df$Month %in% c(7:11))] <- "July - November"
+
+Season_df$season <- factor(Season_df$season,levels = c("December - February",
+                                                       "March - June",
+                                                       "July - November"))
+
+test <- Season_df %>%
+  dplyr::group_by(x,y,season) %>%
+  dplyr::summarise(S_x = mean(S_x))
+
+ggplot(data = test)+
+  geom_point(aes(x=x,y=y,col=S_x))+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust=0.5))+
+  xlab("Longitude (deg)") + ylab("Latitude (deg)") +
+  geom_sf(data = mapBase) +
+  coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+  theme(plot.title = element_text(hjust=0.5),
+        legend.title = element_blank(),
+        panel.spacing.x = unit(10, "mm"))+
+  scale_color_distiller(palette="Spectral")+
+  facet_wrap(.~factor(season))
+
+```
+
