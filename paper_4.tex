@@ -3,12 +3,11 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
-  english,
   man]{apa6}
+\usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
-\usepackage{ifxetex,ifluatex}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage{iftex}
+\ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
@@ -34,16 +33,7 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
-\hypersetup{
-  pdftitle={Decomposing fish species distribution to identify characteristic spatial patterns},
-  pdfauthor={First Author1 \& Second author1,2},
-  pdfkeywords={keywords},
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
-\urlstyle{same} % disable monospaced font for URLs
-\usepackage{graphicx,grffile}
+\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -59,7 +49,7 @@
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{5}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 % Make \paragraph and \subparagraph free-standing
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
@@ -69,6 +59,38 @@
   \let\oldsubparagraph\subparagraph
   \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{english}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
 % Manuscript styling
 \usepackage{upgreek}
 \captionsetup{font=singlespacing,justification=justified}
@@ -99,6 +121,20 @@
 % \setlength{\parindent}{0.5in}
 % \setlength{\parskip}{0pt plus 0pt minus 0pt}
 
+% Overwrite redefinition of paragraph and subparagraph by the default LaTeX template
+% See https://github.com/crsh/papaja/issues/292
+\makeatletter
+\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\parindent}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries\itshape\typesectitle}}
+
+\renewcommand{\subparagraph}[1]{\@startsection{subparagraph}{5}{1em}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-\z@\relax}%
+  {\normalfont\normalsize\itshape\hspace{\parindent}{#1}\textit{\addperi}}{\relax}}
+\makeatother
+
 % \usepackage{etoolbox}
 \makeatletter
 \patchcmd{\HyOrg@maketitle}
@@ -110,7 +146,15 @@
   {\section*{\protect\normalfont{\@title}}}
   {}{\typeout{Failed to patch title.}}
 \makeatother
-\shorttitle{EOF}
+
+\usepackage{xpatch}
+\makeatletter
+\xapptocmd\appendix
+  {\xapptocmd\section
+    {\addcontentsline{toc}{section}{\appendixname\ifoneappendix\else~\theappendix\fi\\: #1}}
+    {}{\InnerPatchFailed}%
+  }
+{}{\PatchFailed}
 \keywords{keywords\newline\indent Word count: X}
 \DeclareDelayedFloatFlavor{ThreePartTable}{table}
 \DeclareDelayedFloatFlavor{lltable}{table}
@@ -123,18 +167,26 @@
 \linenumbers
 \usepackage{csquotes}
 \usepackage{graphicx}
-\ifxetex
-  % Load polyglossia as late as possible: uses bidi with RTL langages (e.g. Hebrew, Arabic)
-  \usepackage{polyglossia}
-  \setmainlanguage[]{english}
-\else
-  \usepackage[shorthands=off,main=english]{babel}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
 \fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Decomposing fish species distribution to identify characteristic spatial patterns},
+  pdfauthor={First Author1 \& Second author1,2},
+  pdflang={en-EN},
+  pdfkeywords={keywords},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
 
 \title{Decomposing fish species distribution to identify characteristic spatial patterns}
 \author{First Author\textsuperscript{1} \& Second author\textsuperscript{1,2}}
 \date{}
 
+
+\shorttitle{EOF}
 
 \authornote{
 
@@ -146,7 +198,7 @@ Correspondence concerning this article should be addressed to First Author, Post
 
 \affiliation{\vspace{0.5cm}\textsuperscript{1} Institution 1\\\textsuperscript{2} Institution 2}
 
-\abstract{
+\abstract{%
 Here goes the abstract
 }
 
@@ -154,6 +206,10 @@ Here goes the abstract
 
 \begin{document}
 \maketitle
+
+Species phenology --\textgreater{} major uncertainty
+
+While key in understanding species life cycle and has major ecological and conservation implications.
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
@@ -163,6 +219,16 @@ Here goes the abstract
 
 \hypertarget{case-studies}{%
 \subsubsection{Case studies}\label{case-studies}}
+
+We selected sole and sea bass in the Bay of Biscay as well as Hake in both the Bay of Biscay and the Celtic Sea as case studies. These three case studies are selected as they all benefit from scientific and expert knowledge regarding their phenology in order to validate the results of their analysis.
+
+Sole of the Bay of Biscay reproduce.
+
+Sea bass in the Bay of Biscay is .
+
+Hake in the Bay of Biscay and in the Celtic Sea is considered as one single stock. Still, there is question about the
+
+To map species distribution, we filtered the data from several trawler fleets from 2008 to 2018.
 
 \hypertarget{data}{%
 \subsubsection{Data}\label{data}}
@@ -184,7 +250,7 @@ S(x,t)=\sum_{m=1}^M \alpha_m(t) \cdot p_m(x) + r^M(x,t)
 
 where \(r^M(x,t)\) is the residual variation not captured by the \(M\) modes of variation \(\alpha_m(t) \cdot p(m,x)\).
 
-To estimate the temporal components \(\alpha_m(t)\) and the spatial patterns \(p(m,x)\), some criteria need to be set. A natural choice is to minimize the residual variation to best capture the variability \(S(x,t)\) (i.e.~\(R^M=\sum^M_{m=1}(r^M_m)^2\) is minimized) and set orthogonal constraints between the modes of variability so that each mode is the \enquote{best} representation of variability from a statistical point of view (Equations \ref{eq:Orthog1}, \ref{eq:Orthog2}). This last criteria is further discussed in the discussion.
+To estimate the temporal components \(\alpha_m(t)\) and the spatial patterns \(p(m,x)\), some criteria need to be set. A natural choice is to minimize the residual variation to best capture the variability \(S(x,t)\) (i.e.~\(R^M=\sum^M_{m=1}(r^M_m)^2\) is minimized) and set orthogonal constraints between the modes of variability so that each mode is the `best' representation of variability from a statistical point of view (Equations \ref{eq:Orthog1}, \ref{eq:Orthog2}). This last criteria is further discussed in the discussion.
 
 \begin{align}
 \label{eq:Orthog1}
@@ -215,7 +281,7 @@ Finally, by introducing \(A \equiv {Q^*}^T Q^*\) (whose elements are proportionn
 \mathbf{YAY}^T=\mathbf{D}
 \end{align}
 
-This is a standard \enquote{eigenvalue-eigenvector} problem. As a consequence, a link can be done with standard multivariate analysis such as PCA. Thus, in addition to the spatial patterns (and the related temporal components) that appear in the EOF formulations (Equation \ref{eq:EOF}) and that can be obtained by diagonalysing the problem in Equation \ref{eq:Diag}, additionnal analysis can be performed to obtain similar visualisation as in PCA (e.g.~plot of individuals and variables) possibly coupled with standard clustering analysis.
+This is a standard ``eigenvalue-eigenvector'' problem. As a consequence, a link can be done with standard multivariate analysis such as PCA. Thus, in addition to the spatial patterns (and the related temporal components) that appear in the EOF formulations (Equation \ref{eq:EOF}) and that can be obtained by diagonalysing the problem in Equation \ref{eq:Diag}, additionnal analysis can be performed to obtain similar visualisation as in PCA (e.g.~plot of individuals and variables) possibly coupled with standard clustering analysis.
 
 \hypertarget{link-with-pca}{%
 \subsubsection{Link with PCA}\label{link-with-pca}}
@@ -228,37 +294,39 @@ Singluar value decomposition (svd) express a matrix \(\mathbf{X}\) as a decompos
 
 \(\mathbf{X}=\mathbf{U} \mathbf{\Lambda} \mathbf{V}^{\prime}\) with \(\mathbf{U U}^{\prime}=\mathbf{U}^{\prime} \mathbf{U}=\mathbf{I}\) and \(\mathbf{V V}^{\prime}=\mathbf{V}^{\prime} \mathbf{V}=\mathbf{I}\).
 
-From these expressions, we can demonstrate that \(\mathbf{XX}^{\prime} = \mathbf{V}^{\prime} \mathbf{\Lambda}^2 \mathbf{V}\) with \(\mathbf{\Lambda}^2\) the eigen-values and \(V\) the eigen-vectors of the covariance matrix \(\mathbf{XX}^{\prime}\). The eigen-values and eigen-vectors of the covariance matrix \(A\) where obtained from svd and allowed to performed the same analysis as in standard PCA (more precisely a PCA is a svd on centered or centered-reduced data if the PCA is normalized).
-
-Then,
+From these expressions, we can demonstrate that \(\mathbf{XX}^{\prime} = \mathbf{V}^{\prime} \mathbf{\Lambda}^2 \mathbf{V}\) with \(\mathbf{\Lambda}^2\) the eigen-values and \(\mathbf{V}\) the eigen-vectors of the covariance matrix \(\mathbf{XX}^{\prime}\). The eigen-values and eigen-vectors of the covariance matrix \(\mathbf{A}\) where obtained from svd and allowed to performed the same analysis as in standard PCA (more precisely a PCA is a svd on centered or centered-reduced data if the PCA is normalized).
 
 \hypertarget{representing-variables-and-individuals}{%
 \subsubsection{Representing variables and individuals}\label{representing-variables-and-individuals}}
 
-Spectral analysis:
-- \url{https://bookdown.org/rdpeng/timeseriesbook/spectral-analysis.html}
-- \url{https://math.mcmaster.ca/~bolker/eeid/2010/Ecology/Spectral.pdf}
+Then, we analyse the spatio-temporal model outputs by presenting the spatial patterns \(p_m(x)\) (i.e.~the eigen-vectors) which are in the matrix \(\mathbf{X}=\mathbf{V}\). These can be seen as maps that structure the actual process \(\mathbf{S}\) (Cf. Figure\ldots) or alternatively as standard variable plot as in classical PCA analysis (Cf. Figure\ldots).
+
+The temporal index \(\alpha_m(t)\) are the projection matrix \(\mathbf{S}^*\) onto the EOF basis function \(\mathbf{V}\) i.e.~\(A=\mathbf{S}^*\mathbf{X}=\mathbf{U} \mathbf{\Lambda}\). These can be either seen as time series (Cf. Figure\ldots) or as a classical plot of individuals on the first components of the PCA (Cf. Figure\ldots).
+
+When confronted together, the spatial representations and the related temporal indices inform how the spatial patterns vary in time.
+
+\textbf{FIGURE: LINK BETWEEN EOF AND PCA}
+
+Spectral analysis: - \url{https://bookdown.org/rdpeng/timeseriesbook/spectral-analysis.html} - \url{https://math.mcmaster.ca/~bolker/eeid/2010/Ecology/Spectral.pdf}
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
 
-\hypertarget{percentage-of-variance-explained-by-the-eof}{%
-\subsection{Percentage of variance explained by the EOF}\label{percentage-of-variance-explained-by-the-eof}}
+\hypertarget{strong-seasonnal-patterns}{%
+\subsection{Strong seasonnal patterns}\label{strong-seasonnal-patterns}}
 
---\textgreater{} 2 first capture around 20\% each
+--\textgreater{} 2 first capture around 20\% each and often very seasonnal
 
-\hypertarget{structuring-spatial-patterns-and-their-temporal-variation}{%
-\subsection{Structuring spatial patterns and their temporal variation}\label{structuring-spatial-patterns-and-their-temporal-variation}}
+--\textgreater{} seasonnal PC, coincide with reproduction ecology --\textgreater{} result from migration patterns ?
 
 --\textgreater{} Northward move for Hake and Sole
 
---\textgreater{} seasonnal PC, coincide with reproduction ecology
---\textgreater{} result from migration patterns ?
-
-\hypertarget{identying-ecological-seasons-and-related-spatial-patterns}{%
-\subsection{Identying ecological seasons and related spatial patterns}\label{identying-ecological-seasons-and-related-spatial-patterns}}
+\hypertarget{identifying-seasons-and-functional-zones}{%
+\subsection{Identifying seasons and functional zones}\label{identifying-seasons-and-functional-zones}}
 
 --\textgreater{} result of clustering on temporal indices and related groups
+
+High inter-annual stability, no confusion between month/cluster
 
 --\textgreater{} related spatial patterns
 
@@ -272,7 +340,7 @@ Spectral analysis:
   EOM ? Constraints to build the maps
 \end{itemize}
 
---\textgreater{} \enquote{best} representation of variability from a statistical point of view = \enquote{second basis function should be spatially uncorrelated with the first, and this is equivalent to the requirement of spatial orthogonality}
+--\textgreater{} `best' representation of variability from a statistical point of view = `second basis function should be spatially uncorrelated with the first, and this is equivalent to the requirement of spatial orthogonality'
 
 (Lorenz, 1956; Randall, 2003)
 
@@ -288,16 +356,21 @@ Spectral analysis:
 \setlength{\leftskip}{0.5in}
 
 \hypertarget{refs}{}
-\leavevmode\hypertarget{ref-lorenz1956empirical}{}%
+\begin{CSLReferences}{1}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-lorenz1956empirical}{}}%
 Lorenz, E. N. (1956). \emph{Empirical orthogonal functions and statistical weather prediction} (Vol. 1). Massachusetts Institute of Technology, Department of Meteorology Cambridge.
 
-\leavevmode\hypertarget{ref-monahan2009empirical}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-monahan2009empirical}{}}%
 Monahan, A. H., Fyfe, J. C., Ambaum, M. H., Stephenson, D. B., \& North, G. R. (2009). Empirical orthogonal functions: The medium is the message. \emph{Journal of Climate}, \emph{22}(24), 6501--6514.
 
-\leavevmode\hypertarget{ref-randall2003empirical}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-randall2003empirical}{}}%
 Randall, D. (2003). Empirical orthogonal functions. \emph{Dept. Atmosph. Sci., Colorado State Univ., CO, USA}.
 
+\end{CSLReferences}
+
 \endgroup
+
+\includegraphics{paper_4_files/figure-latex/SM plot-1.pdf}
 
 
 \end{document}

@@ -48,7 +48,6 @@ header-includes:
 output            : papaja::apa6_pdf
  # papaja::apa6_word:
     # reference_docx: mystyles_number_test.docx
-
 ---
 
 ```{r setup, include = FALSE}
@@ -81,11 +80,9 @@ set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
-Species phenology --> major uncertainty
+Species phenology --\> major uncertainty
 
 While key in understanding species life cycle and has major ecological and conservation implications.
-
-
 
 # Methods
 
@@ -99,7 +96,7 @@ Sole of the Bay of Biscay reproduce.
 
 Sea bass in the Bay of Biscay is .
 
-Hake in the Bay of Biscay and in the Celtic Sea is considered as one single stock. Still, there is question about the 
+Hake in the Bay of Biscay and in the Celtic Sea is considered as one single stock. Still, there is question about the
 
 To map species distribution, we filtered the data from several trawler fleets from 2008 to 2018.
 
@@ -111,48 +108,50 @@ To map species distribution, we filtered the data from several trawler fleets fr
 
 ### EOF
 
-Empirical Orthogonal Functions is a method that has been developped by @lorenz1956empirical for weather forecasting applications. The original aim of the technic was to deduce from a set of spatio-temporal maps a smaller set of maps that best describe and summarise the spatio-temporal process of interest. The main idea was to define the spatio-temporal process $S(x,t)$ as a linear combination of spatial patterns $p_m$ (named EOF) each related to temporal indices $\alpha_m(t)$ (Equation \ref{eq:EOF} - $x\in[\![1,N]\!],t\in[\![1,T]\!]$). These temporal indices indicate when the spatio-temporal process is distributed following their related spatial pattern. 
+Empirical Orthogonal Functions is a method that has been developped by @lorenz1956empirical for weather forecasting applications. The original aim of the technic was to deduce from a set of spatio-temporal maps a smaller set of maps that best describe and summarise the spatio-temporal process of interest. The main idea was to define the spatio-temporal process $S(x,t)$ as a linear combination of spatial patterns $p_m$ (named EOF) each related to temporal indices $\alpha_m(t)$ (Equation \ref{eq:EOF} - $x\in[\![1,N]\!],t\in[\![1,T]\!]$). These temporal indices indicate when the spatio-temporal process is distributed following their related spatial pattern.
 
+```{=tex}
 \begin{align} \label{eq:EOF}
 S(x,t)=\sum_{m=1}^M \alpha_m(t) \cdot p_m(x) + r^M(x,t)
 \end{align}
-
+```
 where $r^M(x,t)$ is the residual variation not captured by the $M$ modes of variation $\alpha_m(t) \cdot p(m,x)$.
 
+To estimate the temporal components $\alpha_m(t)$ and the spatial patterns $p(m,x)$, some criteria need to be set. A natural choice is to minimize the residual variation to best capture the variability $S(x,t)$ (i.e. $R^M=\sum^M_{m=1}(r^M_m)^2$ is minimized) and set orthogonal constraints between the modes of variability so that each mode is the 'best' representation of variability from a statistical point of view (Equations \ref{eq:Orthog1}, \ref{eq:Orthog2}). This last criteria is further discussed in the discussion.
 
-
-
-To estimate the temporal components $\alpha_m(t)$ and the spatial patterns $p(m,x)$, some criteria need to be set. A natural choice is to minimize the residual variation to best capture the variability $S(x,t)$ (i.e.  $R^M=\sum^M_{m=1}(r^M_m)^2$ is minimized) and set orthogonal constraints between the modes of variability so that each mode is the 'best' representation of variability from a statistical point of view (Equations \ref{eq:Orthog1}, \ref{eq:Orthog2}). This last criteria is further discussed in the discussion.
-
+```{=tex}
 \begin{align}
 \label{eq:Orthog1}
 \sum^N_{x=1} p_m(x) \cdot p_j(x) = \delta_{mj} \equiv \Bigg \{ \begin{array}{lll}1 & \text { if } & m=j \\ 0 & \text { if } & m \neq j\end{array}
 \end{align}
-
+```
+```{=tex}
 \begin{align}
 \label{eq:Orthog2}
 T \cdot \overline{p_m^* p_j^*} = a_m \delta_{mj}
 \end{align}
-
-with $a_m	\geq a_{m+1} \geq 0$, $\overline{( \ )}$ denoting the time average and $( \ )^*$ a departure from the time average.
+```
+with $a_m \geq a_{m+1} \geq 0$, $\overline{( \ )}$ denoting the time average and $( \ )^*$ a departure from the time average.
 
 Let's write these equations in matrix terms by introducing the $T \times N$ matrix $\mathbf{S}$, $\mathbf{S}^*$, $\mathbf{Q}$, $\mathbf{Q}^*$. They respectively refer to $S(x,t)$, $S^*(x,t)$, $\alpha_m(t)$ and $\alpha_m^*(t)$. We denote $\mathbf{Y}$ is a square matrix of order $N$ with elements $p_{m}(x)$ (NEED TO CHECK). Then, the problem can be reformulated as:
 
+```{=tex}
 \begin{align}
 & \mathbf{S}=\mathbf{QY} \\
 & \mathbf{YY}^T=\mathbf{I} \\
 & {\mathbf{Q}^{*}}^T\mathbf{Q} = \mathbf{D}
 \end{align}
-
+```
 with $\overline{(\ )}$ the transpose, $\mathbf{I}$ the identity, $\mathbf{D}$ a diagonal matrix with diagonal being equal to $a_m / T$.
 
 Finally, by introducing $A \equiv {Q^*}^T Q^*$ (whose elements are proportionnal to the covariance of $\alpha_m(t)$), we can rewrite these equations as:
 
+```{=tex}
 \begin{align}
 \label{eq:Diag}
 \mathbf{YAY}^T=\mathbf{D}
 \end{align}
-
+```
 This is a standard "eigenvalue-eigenvector" problem. As a consequence, a link can be done with standard multivariate analysis such as PCA. Thus, in addition to the spatial patterns (and the related temporal components) that appear in the EOF formulations (Equation \ref{eq:EOF}) and that can be obtained by diagonalysing the problem in Equation \ref{eq:Diag}, additionnal analysis can be performed to obtain similar visualisation as in PCA (e.g. plot of individuals and variables) possibly coupled with standard clustering analysis.
 
 ### Link with PCA
@@ -161,12 +160,11 @@ In this representation (Equation \ref{eq:Diag}), $\mathbf{Y}^T=X$ is the matrix 
 
 Often, this equation cannot be resolved as the A matrix is not diagonalisable (when there are more spatial locations than time-steps). Then, it is required to pass through singular value decomposition to get the eigen-values and eigen-vectors of $A$.
 
-Singluar value decomposition (svd) express a matrix $\mathbf{X}$ as a decomposition of 3 other matrices: 
+Singluar value decomposition (svd) express a matrix $\mathbf{X}$ as a decomposition of 3 other matrices:
 
 $\mathbf{X}=\mathbf{U} \mathbf{\Lambda} \mathbf{V}^{\prime}$ with $\mathbf{U U}^{\prime}=\mathbf{U}^{\prime} \mathbf{U}=\mathbf{I}$ and $\mathbf{V V}^{\prime}=\mathbf{V}^{\prime} \mathbf{V}=\mathbf{I}$.
 
 From these expressions, we can demonstrate that $\mathbf{XX}^{\prime} = \mathbf{V}^{\prime} \mathbf{\Lambda}^2 \mathbf{V}$ with $\mathbf{\Lambda}^2$ the eigen-values and $\mathbf{V}$ the eigen-vectors of the covariance matrix $\mathbf{XX}^{\prime}$. The eigen-values and eigen-vectors of the covariance matrix $\mathbf{A}$ where obtained from svd and allowed to performed the same analysis as in standard PCA (more precisely a PCA is a svd on centered or centered-reduced data if the PCA is normalized).
-
 
 ### Representing variables and individuals
 
@@ -178,11 +176,9 @@ When confronted together, the spatial representations and the related temporal i
 
 **FIGURE: LINK BETWEEN EOF AND PCA**
 
-Spectral analysis:
-- https://bookdown.org/rdpeng/timeseriesbook/spectral-analysis.html
-- https://math.mcmaster.ca/~bolker/eeid/2010/Ecology/Spectral.pdf
+Spectral analysis: - <https://bookdown.org/rdpeng/timeseriesbook/spectral-analysis.html> - <https://math.mcmaster.ca/~bolker/eeid/2010/Ecology/Spectral.pdf>
 
-```{r make data}
+```{r make data, warning=FALSE}
 
 if(run_code){
   
@@ -407,12 +403,11 @@ if(run_code){
 
 ```
 
-
 # Results
 
 ## Strong seasonnal patterns
 
-```{r}
+```{r warning=FALSE}
 
 if(run_code){
   
@@ -439,7 +434,7 @@ if(run_code){
     theme(aspect.ratio = 1)+
     ylab("Percentage of variance (%)")+xlab("Dimension")+
     geom_vline(data=vert_bar,aes(xintercept = dim),
-               color = "red",size=0.75,linetype="dashed")
+               color = "red",linewidth=0.75,linetype="dashed")
   
   ggsave(filename = "images/eigen_df_plot.png",width = 5,height = 5)
   
@@ -486,9 +481,9 @@ if(run_code){
     EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
                                    aes(x=Year_Month,y=value,group=PC))+
       geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
-                 linetype="dashed", color = "skyblue", size = 1)+
-      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
-      geom_line(size=1,color=color_name[j])+
+                 linetype="dashed", color = "skyblue", linewidth = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", linewidth = 1)+
+      geom_line(linewidth=1,color=color_name[j])+
       theme_bw()+
       xlab("")+ylab("")+
       theme()+
@@ -499,7 +494,7 @@ if(run_code){
             plot.margin = margin(2, 2, 2, 2, unit = "pt"),
             plot.title = element_text(hjust=0.5,face = "bold"))+
       geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
-      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+      geom_text(aes(x = max(Year_Month),
                     y = -Inf, label = "2018"),
                 col= "black", hjust = 1, vjust = 2)+
       coord_cartesian(clip = "off")
@@ -563,9 +558,9 @@ if(run_code){
     EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
                                    aes(x=Year_Month,y=value,group=PC))+
       geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
-                 linetype="dashed", color = "skyblue", size = 1)+
-      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
-      geom_line(size=1,color=color_name[j])+
+                 linetype="dashed", color = "skyblue", linewidth = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", linewidth = 1)+
+      geom_line(linewidth=1,color=color_name[j])+
       theme_bw()+
       xlab("")+ylab("")+
       theme()+
@@ -576,7 +571,7 @@ if(run_code){
             plot.margin = margin(2, 2, 2, 2, unit = "pt"),
             plot.title = element_text(hjust=0.5,face = "bold"))+
       geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
-      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+      geom_text(aes(x = max(Year_Month),
                     y = -Inf, label = "2018"),
                 col= "black", hjust = 1, vjust = 2)+
       coord_cartesian(clip = "off")
@@ -628,9 +623,9 @@ if(run_code){
     EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
                                    aes(x=Year_Month,y=value,group=PC))+
       geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
-                 linetype="dashed", color = "skyblue", size = 1)+
-      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
-      geom_line(size=1,color=color_name[j])+
+                 linetype="dashed", color = "skyblue", linewidth = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", linewidth = 1)+
+      geom_line(linewidth=1,color=color_name[j])+
       theme_bw()+
       xlab("")+ylab("")+
       theme()+
@@ -641,7 +636,7 @@ if(run_code){
             plot.margin = margin(2, 2, 2, 2, unit = "pt"),
             plot.title = element_text(hjust=0.5,face = "bold"))+
       geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
-      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+      geom_text(aes(x = max(Year_Month),
                     y = -Inf, label = "2018"),
                 col= "black", hjust = 1, vjust = 2)+
       coord_cartesian(clip = "off")
@@ -691,9 +686,9 @@ if(run_code){
     EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
                                    aes(x=Year_Month,y=-value,group=PC))+
       geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
-                 linetype="dashed", color = "skyblue", size = 1)+
-      geom_hline(yintercept=0,linetype="dashed", color = "grey", size = 1)+
-      geom_line(size=1,color=color_name[j])+
+                 linetype="dashed", color = "skyblue", linewidth = 1)+
+      geom_hline(yintercept=0,linetype="dashed", color = "grey", linewidth = 1)+
+      geom_line(linewidth=1,color=color_name[j])+
       theme_bw()+
       xlab("")+ylab("")+
       theme()+
@@ -704,7 +699,7 @@ if(run_code){
             plot.margin = margin(2, 2, 2, 2, unit = "pt"),
             plot.title = element_text(hjust=0.5,face = "bold"))+
       geom_text(aes(x = -Inf, y = -Inf, label = "2008"),col= "black", hjust = -.10, vjust = 2)+
-      geom_text(aes(x = max(EOF_PC_spp$Year_Month),
+      geom_text(aes(x = max(Year_Month),
                     y = -Inf, label = "2018"),
                 col= "black", hjust = 1, vjust = 2)+
       coord_cartesian(clip = "off")
@@ -787,16 +782,13 @@ if(run_code){
 
 ```
 
---> 2 first capture around 20% each and often very seasonnal
+--\> 2 first capture around 20% each and often very seasonnal
 
---> seasonnal PC, coincide with reproduction ecology
-  --> result from migration patterns ?
+--\> seasonnal PC, coincide with reproduction ecology --\> result from migration patterns ?
 
---> Northward move for Hake and Sole
-
+--\> Northward move for Hake and Sole
 
 ## Identifying seasons and functional zones
-
 
 ```{r}
 
@@ -1268,25 +1260,21 @@ if(run_code){
 
 ```
 
-
-
-
---> result of clustering on temporal indices and related groups
+--\> result of clustering on temporal indices and related groups
 
 High inter-annual stability, no confusion between month/cluster
 
---> related spatial patterns
-
+--\> related spatial patterns
 
 # Discussion
 
-- Northward move --> climate change ?
+-   Northward move --\> climate change ?
 
-- EOM ? Constraints to build the maps
+-   EOM ? Constraints to build the maps
 
---> 'best' representation of variability from a statistical point of view = 'second basis function should be spatially uncorrelated with the first, and this is equivalent to the requirement of spatial orthogonality'
+--\> 'best' representation of variability from a statistical point of view = 'second basis function should be spatially uncorrelated with the first, and this is equivalent to the requirement of spatial orthogonality'
 
-[@lorenz1956empirical;@randall2003empirical]
+[@lorenz1956empirical; @randall2003empirical]
 
 [@monahan2009empirical]
 
@@ -1294,14 +1282,17 @@ High inter-annual stability, no confusion between month/cluster
 
 # References
 
+```{=tex}
 \begingroup
 \setlength{\parindent}{-0.5in}
 \setlength{\leftskip}{0.5in}
+```
+::: {#refs custom-style="Bibliography"}
+:::
 
-<div id="refs" custom-style="Bibliography"></div>
+```{=tex}
 \endgroup
-
-
+```
 ```{r SM plot}
 
 ## For sole - seasonal patterns
@@ -1334,4 +1325,3 @@ ggplot(data = test)+
   facet_wrap(.~factor(season))
 
 ```
-
