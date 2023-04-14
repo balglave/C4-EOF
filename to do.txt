@@ -1,3 +1,7 @@
-Dyn pop merlu ?
-PC normé  et explosion merlu --> expliquerai la 1er EOF pour merlu ?
-Checker données merlu
+ANALYSIS
+Try Ecodist
+Invetigate the timing of reproduction based on some lag metrics
+Compare time series with environmental covariates
+
+WRITING
+Introduction --> Maxime writing para on phenology
