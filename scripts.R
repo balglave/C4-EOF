@@ -1277,7 +1277,7 @@ for(i in 1:4){
 }
 
 
-## Maximum and Minimum of PC1 - Month vs. Year
+## Maximum and Minimum of PC - Month vs. Year
 #---------------------------------------------
 load("res/minmax_PC_df.RData")
 
