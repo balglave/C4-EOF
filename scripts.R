@@ -298,6 +298,8 @@ EOF_PC_spp <- EOF_PC[[i]] %>%
 color_name <- ggplotColours(n = n_EOF[i])
 list_EOF_map_sole <- list()
 list_EOF_PC_sole <- list()
+minmax_PC_df = NULL
+
 for(j in 1:n_EOF[i]){
   
   EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
@@ -340,6 +342,37 @@ for(j in 1:n_EOF[i]){
               col= "black", hjust = 1, vjust = 2)+
     coord_cartesian(clip = "off")
   list_EOF_PC_sole[[j]] <- EOF_time_series_plot
+  
+  for(year in 2008:2018){
+    
+    toto = EOF_PC_spp_2 %>% 
+      filter(Year == year)
+    
+    month_max = which(toto$value == max(toto$value))
+    month_min = which(toto$value == min(toto$value))
+    
+    if(is.null(minmax_PC_df)){
+      
+      minmax_PC_df = data.frame(species = species_name[i],
+                                PC = j,
+                                Year = year,
+                                Month_max = month_max,
+                                Month_min = month_min)
+      
+    }else{
+      
+      
+      titi = data.frame(species = species_name[i],
+                        PC = j,
+                        Year = year,
+                        Month_max = month_max,
+                        Month_min = month_min)
+      minmax_PC_df = rbind(minmax_PC_df,titi)
+      
+    }
+    
+  }
+
 }
 
 EOF_sole <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
@@ -360,6 +393,7 @@ EOF_sole_pres <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
                            rel_widths = c(1.05,0.5))
 
 ggsave(filename = "images/Solea_solea/pres_EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
+
 
 ## Hake - BoB
 #------------
@@ -417,6 +451,37 @@ for(j in 1:n_EOF[i]){
               col= "black", hjust = 1, vjust = 2)+
     coord_cartesian(clip = "off")
   list_EOF_PC_hake_bob[[j]] <- EOF_time_series_plot
+  
+  for(year in 2008:2018){
+    
+    toto = EOF_PC_spp_2 %>% 
+      filter(Year == year)
+    
+    month_max = which(toto$value == max(toto$value))
+    month_min = which(toto$value == min(toto$value))
+    
+    if(is.null(minmax_PC_df)){
+      
+      minmax_PC_df = data.frame(species = species_name[i],
+                                PC = j,
+                                Year = year,
+                                Month_max = month_max,
+                                Month_min = month_min)
+      
+    }else{
+      
+      
+      titi = data.frame(species = species_name[i],
+                        PC = j,
+                        Year = year,
+                        Month_max = month_max,
+                        Month_min = month_min)
+      minmax_PC_df = rbind(minmax_PC_df,titi)
+      
+    }
+    
+  }
+  
 }
 
 EOF_hake_bob <- plot_grid(list_EOF_PC_hake_bob[[1]],list_EOF_map_hake_bob[[1]],
@@ -482,6 +547,37 @@ for(j in 1:n_EOF[i]){
               col= "black", hjust = 1, vjust = 2)+
     coord_cartesian(clip = "off")
   list_EOF_PC_hake_cs[[j]] <- EOF_time_series_plot
+  
+  for(year in 2008:2018){
+    
+    toto = EOF_PC_spp_2 %>% 
+      filter(Year == year)
+    
+    month_max = which(toto$value == max(toto$value))
+    month_min = which(toto$value == min(toto$value))
+    
+    if(is.null(minmax_PC_df)){
+      
+      minmax_PC_df = data.frame(species = species_name[i],
+                                PC = j,
+                                Year = year,
+                                Month_max = month_max,
+                                Month_min = month_min)
+      
+    }else{
+      
+      
+      titi = data.frame(species = species_name[i],
+                        PC = j,
+                        Year = year,
+                        Month_max = month_max,
+                        Month_min = month_min)
+      minmax_PC_df = rbind(minmax_PC_df,titi)
+      
+    }
+    
+  }
+  
 }
 
 EOF_hake_cs <- plot_grid(list_EOF_PC_hake_cs[[1]],list_EOF_map_hake_cs[[1]],
@@ -545,6 +641,37 @@ for(j in 1:n_EOF[i]){
               col= "black", hjust = 1, vjust = 2)+
     coord_cartesian(clip = "off")
   list_EOF_PC_seabass[[j]] <- EOF_time_series_plot
+  
+  for(year in 2008:2018){
+    
+    toto = EOF_PC_spp_2 %>% 
+      filter(Year == year)
+    
+    month_max = which(toto$value == max(toto$value))
+    month_min = which(toto$value == min(toto$value))
+    
+    if(is.null(minmax_PC_df)){
+      
+      minmax_PC_df = data.frame(species = species_name[i],
+                                PC = j,
+                                Year = year,
+                                Month_max = month_max,
+                                Month_min = month_min)
+      
+    }else{
+      
+      
+      titi = data.frame(species = species_name[i],
+                        PC = j,
+                        Year = year,
+                        Month_max = month_max,
+                        Month_min = month_min)
+      minmax_PC_df = rbind(minmax_PC_df,titi)
+      
+    }
+    
+  }
+  
 }
 
 EOF_seabass <- plot_grid(list_EOF_PC_seabass[[1]],list_EOF_map_seabass[[1]],
@@ -1118,3 +1245,115 @@ season_patt_plot = ggplot(data = season_patt_df)+
 
 ggsave(paste0("images/Solea_solea/season_patt_plot.png"),
        width=10,height=6)
+
+## Abundance-weighted average season
+#-----------------------------------
+x11()
+for(i in 1:4){
+  
+  S_x_df = S_x_list[[i]]
+  u_bar = c()
+  for(year in 2008:2018){
+    
+    S_x_df_2 = S_x_df %>%
+      filter(Year == year)
+    D_y = sum(S_x_df_2$S_x)
+    D_t = c()
+    for(month in 1:12){
+      S_x_df_3 = S_x_df_2 %>% 
+        filter(Month == month)
+      D_t = c(D_t,sum(S_x_df_3$S_x))
+    }
+    u_bar = c(u_bar,sum(D_t/D_y * c(1:12)))
+  }
+  
+  if(i==1){
+    plot(u_bar,main=species_name[i],ylim = c(0,12),col=i)
+    lines(u_bar)
+  }
+  
+  if(i>1) lines(u_bar,col=i)
+  
+}
+
+
+## Maximum and Minimum of PC1 - Month vs. Year
+#---------------------------------------------
+load("res/minmax_PC_df.RData")
+
+month_name = c("January",
+               "February",
+               "March",
+               "April",
+               "May",
+               "June",
+               "July",
+               "August",
+               "September",
+               "October",
+               "November",
+               "December")
+
+minmax_PC_df$Month_max_name = NA
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 1)] = month_name[1]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 2)] = month_name[2]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 3)] = month_name[3]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 4)] = month_name[4]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 5)] = month_name[5]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 6)] = month_name[6]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 7)] = month_name[7]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 8)] = month_name[8]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 9)] = month_name[9]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 10)] = month_name[10]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 11)] = month_name[11]
+minmax_PC_df$Month_max_name[which(minmax_PC_df$Month_max == 12)] = month_name[12]
+
+minmax_PC_df$Month_min_name = NA
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 1)] = month_name[1]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 2)] = month_name[2]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 3)] = month_name[3]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 4)] = month_name[4]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 5)] = month_name[5]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 6)] = month_name[6]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 7)] = month_name[7]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 8)] = month_name[8]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 9)] = month_name[9]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 10)] = month_name[10]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 11)] = month_name[11]
+minmax_PC_df$Month_min_name[which(minmax_PC_df$Month_min == 12)] = month_name[12]
+
+minmax_PC_df$Month_max_name = factor(minmax_PC_df$Month_max_name,levels = rev(month_name))
+minmax_PC_df$Month_min_name = factor(minmax_PC_df$Month_min_name,levels = rev(month_name))
+minmax_PC_df$Year = as.character(minmax_PC_df$Year)
+
+minmax_PC_df$species = factor(minmax_PC_df$species,levels = c("Sole","Hake_BoB","Hake_CS","Seabass"))
+
+minmax_PC_df_2 = minmax_PC_df %>% 
+  filter(PC %in% c(1,2))
+
+max_month_plot = ggplot(minmax_PC_df_2)+
+  geom_point(aes(y=Month_max_name,x=Year))+
+  facet_grid(~species+PC)+
+  ggtitle("Maximum principal component value")+
+  theme_bw()+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust = 0.5,face = "bold"),
+        axis.text.x = element_text(angle = 90,vjust = 0.5))+
+  ylab("")+xlab("")
+
+min_month_plot = ggplot(minmax_PC_df_2)+
+  geom_point(aes(y=Month_min_name,x=Year))+
+  facet_grid(~species+PC)+
+  ggtitle("Minimum principal component value")+
+  theme_bw()+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust = 0.5,face = "bold"),
+        axis.text.x = element_text(angle = 90,vjust = 0.5))+
+  ylab("")+xlab("")
+
+plot_grid(max_month_plot,min_month_plot,ncol = 1)
+
+ggsave(paste0("images/minmax_PC_plot.png"),
+       width=10,height=6)
+
+
