@@ -5,7 +5,9 @@
 library(cowplot)
 library(colorspace)
 library(FactoMineR)
+library(raster)
 library(rnaturalearth)
+library(RNetCDF)
 library(sf)
 library(tidyverse)
 
@@ -26,8 +28,17 @@ raw_biom <- T # conduct analysis on raw biomass
 standardize <- "none" # standardize over time
 n_EOF <- c(6,2,2,1) # number of EOF to look at for each species
 
+# Covariates of interests
+copernicus.var <- c("so","bottomT","chl","thetao","o2") # "so": salinity, "chl": chlorophyll A, "thetao": SST
+# c("so","bottomT","thetao","fe","nppv","nh4","si","phyc","po4","no3","zeu","chl","o2")
+
+extract_covariates <- F # Extract covariates
+cov_file <- "C:/Users/test/Desktop/phd_projects/phd_full_codes/data/raw/Envir.Data/CopernicusData/" # used only if extract_covariate == T, need to have covariates on the computer
+
+
 ## list outputs
 S_x_list <- list()
+cov_list <- list()
 Zt_list <- list()
 V_list  <- list()
 E_list <- list()
@@ -131,7 +142,77 @@ for(i in 1:length(main_c)){
   
   loc_x_list[[i]] <- loc_x_pred
   
-  ############################# Add covariates here
+  ##---------------------------------------------------------------------------------------------------
+  ##----------------------------------- Extract covariates --------------------------------------------
+  ##---------------------------------------------------------------------------------------------------
+  
+  if(extract_covariates){
+    
+    for(year in year_start:year_end){
+      
+      print(year)
+      
+      for(month in month_vec){
+        
+        print(month)
+        
+        cov_df <- loc_x_pred
+        
+        for(copernicus.var_j in copernicus.var){
+          
+          print(copernicus.var_j)
+          
+          gridpoint <- SpatialPointsDataFrame(coords=cov_df[,c("x","y")],
+                                              data=data.frame(key = 1:nrow(cov_df)),
+                                              proj4string=CRS(grid_projection))
+          
+          month_i <- ifelse(month>9,paste0(month),paste0("0",month))
+          year_month <- paste0(year,"-",month_i)
+          
+          ## Read variable in nc table
+          if(copernicus.var_j %in% c("so","bottomT","thetao")) nc_in <- open.nc(paste0(cov_file,"dataset-ibi-reanalysis-phys-005-002-monthly_1576082594192_0m.nc"))
+          if(copernicus.var_j %in% c("fe","nppv","nh4","si","phyc","po4","no3","zeu","chl","o2")) nc_in <- open.nc(paste0(cov_file,"dataset-ibi-reanalysis-bio-005-003-monthly_1576085356161_0m.nc"))
+          
+          nc_lon <- var.get.nc(nc_in, "longitude")
+          nc_lat <- var.get.nc(nc_in, "latitude")
+          nc_var <- var.get.nc(nc_in, copernicus.var_j,unpack=TRUE)
+          nc_t <- var.get.nc(nc_in, "time")
+          nc_t <- as.POSIXct(nc_t*60*60, origin="1950-01-01",tz="GMT", format="%Y-%m-%d")
+          close.nc(nc_in)
+          
+          ## Build raster with NetCDF data
+          gt <- GridTopology(cellcentre.offset = c(nc_lon[1], nc_lat[1]),
+                             cellsize = c((tail(nc_lon, 1) - nc_lon[1])/(length(nc_lon) - 1), (tail(nc_lat, 1) - nc_lat[1])/(length(nc_lat) - 1)),
+                             cells.dim = c(length(nc_lon), length(nc_lat)))
+          sg <- SpatialGrid(gt, CRS(grid_projection))
+          sgdf <- SpatialGridDataFrame(sg, data.frame(var = as.vector(nc_var[,,which(str_detect(nc_t,year_month))])))
+          raster_var <- flip(raster(sgdf),direction = 2)
+          
+          ## Extract covariate form raster at the 'gridpoint' level
+          extract_raster_var <- raster::extract(stack(raster_var), coordinates(gridpoint))
+          copernicuspoint.sp <- gridpoint
+          copernicuspoint.sp@data <- as.data.frame(cbind(copernicuspoint.sp@data[,"key"],extract_raster_var))
+          colnames(copernicuspoint.sp@data)[1] <- "key"
+          colnames(copernicuspoint.sp@data)[2] <- copernicus.var_j
+          cov_df = cbind(cov_df,copernicuspoint.sp@data[,2])
+          colnames(cov_df)[ncol(cov_df)] = copernicus.var_j
+          
+        }
+        
+        cov_df <- cov_df %>% 
+          mutate(Year = year,Month = month)
+        
+        if(year == year_start) cov_df_full = cov_df
+        if(year != year_start) cov_df_full = rbind(cov_df,cov_df_full)
+        
+      }
+      
+    }
+    
+    cov_list[[i]] = cov_df_full
+    
+  }
+  
   
   
   ##################################################
@@ -253,6 +334,7 @@ save(data = eigen_values,file = "res/eigen_values.RData")
 save(data = Zt_list,file = "res/Zt_list.RData")
 save(data = E_list,file = "res/E_list.RData")
 save(data = loc_x_list,file = "res/loc_x_list.RData")
+save(data = cov_list,file = "res/cov_list.RData")
 
 ##----------------------------------------------------------------------------------------------------
 ##----------------------------------- Make plots/analysis --------------------------------------------
