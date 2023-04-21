@@ -1556,10 +1556,13 @@ cor_cov_PC_df_2 = cor_cov_PC_df %>%
 
 cor_cov_PC_df_2$species = factor(cor_cov_PC_df_2$species,levels = rev(unique(cor_cov_PC_df_2$species)))
 
-ggplot(cor_cov_PC_df_2)+
+cor_cov_PC_plot = ggplot(cor_cov_PC_df_2)+
   geom_point(aes(x=covar,y=Rspearman,col=pond))+
   facet_wrap(~species+dimPC,ncol = 2)+theme_bw()+
   geom_hline(yintercept = 0)+
   ylim(-1,1)+theme(aspect.ratio = 1)+
-  
+  xlab("")
+
+ggsave(paste0("images/cor_cov_PC_plot.png"),
+       width=3,height=10)
 
