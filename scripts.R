@@ -694,7 +694,7 @@ for(j in 1:n_EOF[i]){
     geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) >= 1/nrow(loc_x_pred)),], # Only plot the points that most contribute to the dimension
                aes(x = x, y = y, col = -value),size = 0.75,shape=16)+
     geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) < 1/nrow(loc_x_pred)),],
-               aes(x = x, y = y, col = value),size = 0.5,shape=16,alpha=0.2)+
+               aes(x = x, y = y, col = -value),size = 0.5,shape=16,alpha=0.2)+
     scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
     theme_bw()+
     xlab("") + ylab("")+
@@ -1509,24 +1509,33 @@ for(i in 1:4){
       index_i = which(!is.na(to_plot[,var]))
       PC_to_plot = to_plot$value[index_i]
       var_to_plot = unlist(to_plot[,var])[index_i]
-      test_cor = cor.test(PC_to_plot,log(var_to_plot),method = "spearman")
+      
+      PC_to_plot_2 = (PC_to_plot - mean(PC_to_plot))/sd(PC_to_plot) 
+      var_to_plot_2 = (var_to_plot - mean(var_to_plot))/sd(var_to_plot) 
+      
+      test_cor_spearman = cor.test(PC_to_plot_2,var_to_plot_2,method = "spearman")
+      test_cor_pearson = cor.test(PC_to_plot_2,var_to_plot_2,method = "pearson")
       
       if(is.null(cor_cov_PC_df)){
         
         cor_cov_PC_df = data.frame(species = species_name[i],
                                    dimPC = j,
                                    covar = var,
-                                   Rspearman = test_cor$estimate,
-                                   p_val = test_cor$p.value
+                                   Rspearman = test_cor_spearman$estimate,
+                                   p_val_spearman = test_cor_spearman$p.value,
+                                   Rpearson = test_cor_pearson$estimate,
+                                   p_val_pearson = test_cor_pearson$p.value
                                    )
         
       }else{
         
         test = data.frame(species = species_name[i],
-                                   dimPC = j,
-                                   covar = var,
-                                   Rspearman = test_cor$estimate,
-                                   p_val = test_cor$p.value
+                          dimPC = j,
+                          covar = var,
+                          Rspearman = test_cor_spearman$estimate,
+                          p_val_spearman = test_cor_spearman$p.value,
+                          Rpearson = test_cor_pearson$estimate,
+                          p_val_pearson = test_cor_pearson$p.value
         )
         
         cor_cov_PC_df = rbind(test,cor_cov_PC_df)
@@ -1535,21 +1544,26 @@ for(i in 1:4){
       
       if(plot_corr == T){
         
-        plot(PC_to_plot,log(var_to_plot),main = paste("PC",j," vs. ",var))
-        mtext(paste0("Rspearman = ",
-                     round(test_cor$estimate,digits = 3),
+        plot(PC_to_plot_2,var_to_plot_2,main = paste("PC",j," vs. ",var))
+        mtext(paste0("R = ",
+                     round(test_cor_pearson$estimate,digits = 3),
                      " p-val = ",
-                     round(test_cor$p.value,digits = 3),
+                     round(test_cor_pearson$p.value,digits = 3),
                      side=3))
         
       }
     }
   }
 }
+ 
+plot(var_to_plot_2,col="red",ylim = c(-3,3))
+lines(var_to_plot_2,col="red")
+lines(-PC_to_plot_2)
 
+plot(var_to_plot_2,PC_to_plot_2)
 
 cor_cov_PC_df_2 = cor_cov_PC_df %>% 
-  filter(p_val < 0.05 & dimPC < 3) %>% 
+  filter(p_val_pearson < 0.05 & dimPC < 3) %>% 
   mutate(pond = ifelse(str_detect(covar,"pond"),"pond","no_pond")) %>% 
   mutate(covar=str_remove(covar,"_pond"))
 
@@ -1557,12 +1571,12 @@ cor_cov_PC_df_2 = cor_cov_PC_df %>%
 cor_cov_PC_df_2$species = factor(cor_cov_PC_df_2$species,levels = rev(unique(cor_cov_PC_df_2$species)))
 
 cor_cov_PC_plot = ggplot(cor_cov_PC_df_2)+
-  geom_point(aes(x=covar,y=Rspearman,col=pond))+
+  geom_point(aes(x=covar,y=Rpearson,col=pond))+
   facet_wrap(~species+dimPC,ncol = 2)+theme_bw()+
   geom_hline(yintercept = 0)+
   ylim(-1,1)+theme(aspect.ratio = 1)+
   xlab("")
 
 ggsave(paste0("images/cor_cov_PC_plot.png"),
-       width=3,height=10)
+       width=6,height=12)
 
