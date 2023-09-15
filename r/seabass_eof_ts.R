@@ -34,7 +34,10 @@ for(j in 1:n_EOF[i]){
     facet_wrap(.~EOF)
   list_EOF_map_seabass[[j]] <- EOF_map_plot
   
-  EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
+  EOF_PC_spp_2 <- EOF_PC_spp %>%
+    filter(PC == paste0("PC",j)) %>% 
+    left_join(Expected_repro_df[which(Expected_repro_df$Expected_repro_seabass == 1),])
+
   EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
                                  aes(x=Year_Month,y=-value,group=PC))+
     geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
@@ -55,6 +58,7 @@ for(j in 1:n_EOF[i]){
                   y = -Inf, label = "2018"),
               col= "black", hjust = 1, vjust = 2)+
     coord_cartesian(clip = "off")
+
   list_EOF_PC_seabass[[j]] <- EOF_time_series_plot
   
   for(year in 2008:2018){
@@ -89,13 +93,20 @@ for(j in 1:n_EOF[i]){
   
 }
 
-EOF_seabass <- plot_grid(list_EOF_PC_seabass[[1]],list_EOF_map_seabass[[1]],
+EOF_seabass <- plot_grid(list_EOF_PC_seabass[[1]],
+                         list_EOF_map_seabass[[1]],
                          nrow = n_EOF[i],align = "v",
                          rel_widths = c(1.05,0.5))
 
 ggsave(filename = "images/Dicentrarchus_Labrax/EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 3))
 
-EOF_seabass_pres <- plot_grid(list_EOF_PC_seabass[[1]],list_EOF_map_seabass[[1]],
+EOF_seabass_pres <- plot_grid(list_EOF_PC_seabass[[1]]+
+                                geom_ribbon(aes(x = Year_Month,
+                                                ymin = -Expected_repro_seabass*0.1,
+                                                ymax = Expected_repro_seabass*0.35),
+                                            fill = "grey70",alpha = 0.5)+
+                                geom_point(aes(x = Year_Month,y=Expected_repro_seabass_optim - 1),col="red",alpha=0.5),
+                              list_EOF_map_seabass[[1]],
                               NULL,NULL,
                               nrow = 2,align = "v",
                               rel_widths = c(1.05,0.5))

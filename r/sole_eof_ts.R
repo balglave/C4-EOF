@@ -13,6 +13,8 @@ EOF_maps_spp <- EOF_maps[[i]] %>%
 EOF_PC_spp <- EOF_PC[[i]] %>%
   filter(PC %in% paste0("PC",c(1:n_EOF[i])))
 
+
+
 color_name <- ggplotColours(n = n_EOF[i])
 list_EOF_map_sole <- list()
 list_EOF_PC_sole <- list()
@@ -38,9 +40,11 @@ for(j in 1:n_EOF[i]){
     facet_wrap(.~EOF)
   list_EOF_map_sole[[j]] <- EOF_map_plot
   
-  EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
-  EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
-                                 aes(x=Year_Month,y=value,group=PC))+
+  EOF_PC_spp_2 <- EOF_PC_spp %>%
+    filter(PC == paste0("PC",j)) %>% 
+    left_join(Expected_repro_df[which(Expected_repro_df$Expected_repro_sole == 1),])
+  
+  EOF_time_series_plot <- ggplot(EOF_PC_spp_2,aes(x=Year_Month,y=value,group=PC))+
     geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
                linetype="dashed", color = "skyblue", linewidth = 1)+
     geom_hline(yintercept=0,linetype="dashed", color = "grey", linewidth = 1)+
@@ -59,6 +63,7 @@ for(j in 1:n_EOF[i]){
                   y = -Inf, label = "2018"),
               col= "black", hjust = 1, vjust = 2)+
     coord_cartesian(clip = "off")
+  
   list_EOF_PC_sole[[j]] <- EOF_time_series_plot
   
   for(year in 2008:2018){
@@ -105,8 +110,15 @@ EOF_sole <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
 ggsave(filename = "images/Solea_solea/EOF_map_plot.png",width = 30/1.5,height = 15/1.5)
 
 
-EOF_sole_pres <- plot_grid(list_EOF_PC_sole[[1]],list_EOF_map_sole[[1]],
-                           list_EOF_PC_sole[[2]],list_EOF_map_sole[[2]],
+EOF_sole_pres <- plot_grid(list_EOF_PC_sole[[1]],
+                           list_EOF_map_sole[[1]],
+                           list_EOF_PC_sole[[2]]+
+                             geom_ribbon(aes(x = Year_Month,
+                                             ymin = -Expected_repro_sole*0.3,
+                                             ymax = Expected_repro_sole*0.3),
+                                         fill = "grey70",alpha = 0.5)+
+                             geom_point(aes(x = Year_Month,y=Expected_repro_sole_optim - 1),col="red",alpha=0.5),
+                           list_EOF_map_sole[[2]],
                            nrow = 2,align = "v",
                            rel_widths = c(1.05,0.5))
 

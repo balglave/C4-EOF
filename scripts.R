@@ -10,7 +10,13 @@ source("r/config.R")
 
 ## Processing of the model outputs for figures
 #---------------------------------------------
-source("r/process_model_outputs.R")
+if(process_model_outputs){
+  
+  source("r/process_model_outputs.R")
+  
+}
+
+source("r/save_or_load.r")
 
 ##----------------------------------------------------------------------------------------------------
 ##----------------------------------- Make plots/analysis --------------------------------------------
@@ -31,6 +37,60 @@ load("res/minmax_PC_df.RData")
 ## Percentage of variance
 #------------------------
 source("r/perc_var.R")
+
+## Prepare covariate dataframe to compare with EOF
+#------------------------------------------------
+cov_ts_df <- cov_list[[1]] %>%
+  group_by(Year,Month) %>% 
+  dplyr::summarise(bottomT = mean(bottomT,na.rm = T),
+                   SST = mean(thetao,na.rm = T)) %>% 
+  mutate(Year_Month = paste0(Year,"_",ifelse(Month < 10,paste0("0",Month),Month)))
+
+Expected_repro_df <- cov_ts_df
+
+## Range of temperature for reproduction
+# Sole
+Expected_repro_df$Expected_repro_sole = NA
+Expected_repro_df$Expected_repro_sole[which(Expected_repro_df$SST > opt_temp_df[Sole,"min_range_T"] & Expected_repro_df$SST < opt_temp_df[Sole,"max_range_T"])] = 1
+
+# Hake
+Expected_repro_df$Expected_repro_hake = NA
+Expected_repro_df$Expected_repro_hake[which(Expected_repro_df$SST > opt_temp_df[Hake,"min_range_T"] & Expected_repro_df$SST < opt_temp_df[Hake,"max_range_T"])] = 1
+
+# Seabass
+Expected_repro_df$Expected_repro_seabass = NA
+Expected_repro_df$Expected_repro_seabass[which(Expected_repro_df$SST > opt_temp_df[Seabass,"min_range_T"] & Expected_repro_df$SST < opt_temp_df[Seabass,"max_range_T"])] = 1
+
+## Optimal temperature for reproduction
+step_vec <- Expected_repro_df$Year_Month
+
+Sole = 1
+Hake = 2
+Sebass = 3
+
+for(i in 1:length(step_vec)){
+  
+  # Criteria for being optimal temperature 
+  ## Sole
+  condition_sole_range_std <- Expected_repro_df$SST[i] > opt_temp_df[Sole,"min_optim_T"] & Expected_repro_df$SST[i] < opt_temp_df[Sole,"max_optim_T"]
+  condition_sole_range_down <- i>1 & Expected_repro_df$SST[i-1] > opt_temp_df[Sole,"max_optim_T"] & Expected_repro_df$SST[i] < opt_temp_df[Sole,"min_optim_T"]
+  condition_sole_range_up <- i<length(step_vec) & Expected_repro_df$SST[i+1] > opt_temp_df[Sole,"max_optim_T"] & Expected_repro_df$SST[i] < opt_temp_df[Sole,"min_optim_T"]
+  if(condition_sole_range_std | condition_sole_range_down | condition_sole_range_up) Expected_repro_df$Expected_repro_hake_optim[i] <- NA
+  
+  
+  
+  Expected_repro_df$Expected_repro_hake_optim[i]
+  
+}
+
+
+Expected_repro_df$Expected_repro_hake_optim[which(Expected_repro_df$SST > 10 & Expected_repro_df$SST < 12.5)] = 1
+
+
+# ggplot(Expected_repro_df)+
+#   geom_point(aes(x=Year_Month,y=SST))+
+#   geom_hline(yintercept = 13) +
+#   geom_hline(yintercept = 15)
 
 ## Plot EOF maps and time series
 #-------------------------------

@@ -14,6 +14,7 @@ EOF_PC_spp <- EOF_PC[[i]] %>%
 color_name <- ggplotColours(n = n_EOF[i])
 list_EOF_map_hake_bob <- list()
 list_EOF_PC_hake_bob <- list()
+
 for(j in 1:n_EOF[i]){
   
   EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
@@ -34,7 +35,10 @@ for(j in 1:n_EOF[i]){
   
   list_EOF_map_hake_bob[[j]] <- EOF_map_plot
   
-  EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
+  EOF_PC_spp_2 <- EOF_PC_spp %>%
+    filter(PC == paste0("PC",j)) %>% 
+    left_join(Expected_repro_df[which(Expected_repro_df$Expected_repro_hake == 1),])
+  
   EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
                                  aes(x=Year_Month,y=value,group=PC))+
     geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
@@ -89,8 +93,15 @@ for(j in 1:n_EOF[i]){
   
 }
 
-EOF_hake_bob <- plot_grid(list_EOF_PC_hake_bob[[1]],list_EOF_map_hake_bob[[1]],
-                          list_EOF_PC_hake_bob[[2]],list_EOF_map_hake_bob[[2]],
+EOF_hake_bob_pres <- plot_grid(list_EOF_PC_hake_bob[[1]]+
+                            geom_ribbon(aes(x = Year_Month,
+                                            ymin = -Expected_repro_hake*0.6,
+                                            ymax = Expected_repro_hake*0.1),
+                                        fill = "grey70",alpha = 0.5)+
+                            geom_point(aes(x = Year_Month,y=Expected_repro_hake_optim - 1),col="red",alpha=0.5),
+                          list_EOF_map_hake_bob[[1]],
+                          list_EOF_PC_hake_bob[[2]],
+                          list_EOF_map_hake_bob[[2]],
                           nrow = 2,align = "v",
                           rel_widths = c(1.05,0.5))
 

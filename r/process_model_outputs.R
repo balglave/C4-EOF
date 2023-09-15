@@ -295,14 +295,3 @@ for(i in 1:length(main_c)){
   EOF_PC[[i]] <- EOFset1_2
   
 }
-
-save(data = S_x_list,file = "res/S_x_list.RData")
-save(data = EOF_maps,file = "res/EOF_maps.RData")
-save(data = PC_list, file = "res/PC_list.RData")
-save(data = EOF_PC,file = "res/EOF_PC.RData")
-save(data = eigen_values,file = "res/eigen_values.RData")
-save(data = Zt_list,file = "res/Zt_list.RData")
-save(data = V_list,file = "res/V_list.RData")
-save(data = E_list,file = "res/E_list.RData")
-save(data = loc_x_list,file = "res/loc_x_list.RData")
-save(data = cov_list,file = "res/cov_list.RData")
