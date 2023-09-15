@@ -113,7 +113,8 @@ minmax_PC_df_temp3$species = factor(minmax_PC_df_temp3$species,levels = c("Sole"
 plot1 <- bind_rows(minmax_PC_df_temp3 %>% filter(species %in% c("Sole")), minmax_PC_df_temp3 %>% filter(species %in% c("Hake_BoB","Seabass"),PC==1))
 
 plot1$species <- as.character(plot1$species)
-
+plot1$species[which(plot1$species == "Hake_BoB")] <- "Hake"
+plot1$species <- factor(plot1$species,levels = c("Sole","Hake","Seabass"))
 
 minmax_PC_df_plot = ggplot(plot1)+
   geom_point(aes(y=Months,x=Year_winter))+

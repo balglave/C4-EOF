@@ -26,7 +26,7 @@ load("res/V_list.RData")
 load("res/E_list.RData")
 load("res/loc_x_list.RData")
 load("res/cov_list.RData")
-
+load("res/minmax_PC_df.RData")
 
 ## Percentage of variance
 #------------------------
