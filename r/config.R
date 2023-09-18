@@ -12,6 +12,9 @@ standardize <- "none" # standardize over time
 n_EOF <- c(6,2,2,1) # number of EOF to look at for each species
 
 ## Optimal temperature for reproduction
+Sole <- 1
+Hake <- 2
+Seabass <- 3
 opt_temp_df <- data.frame(species = c("Sole","Hake","Seabass"),
                           min_range_T = c(8,9.5,9),
                           max_range_T = c(12.5,17,16),

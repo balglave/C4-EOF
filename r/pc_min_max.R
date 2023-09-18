@@ -54,7 +54,7 @@ for(i in 1:4){
       
       toto <- bind_rows(toto2,toto1)
       temp <- toto  %>% summarise(value=max(value))
-      temp2 <- left_join(temp, toto[,c("Year_winter","value","Month","PC")], by = "value")
+      temp2 <- left_join(temp, toto[,c("Year","Year_winter","value","Month","PC")], by = "value")
       
       if(is.null(minmax_PC_df)){
         minmax_PC_df = temp2  %>% mutate(PC = j,species = species_name[i])
@@ -115,6 +115,8 @@ plot1 <- bind_rows(minmax_PC_df_temp3 %>% filter(species %in% c("Sole")), minmax
 plot1$species <- as.character(plot1$species)
 plot1$species[which(plot1$species == "Hake_BoB")] <- "Hake"
 plot1$species <- factor(plot1$species,levels = c("Sole","Hake","Seabass"))
+
+Expected_repro_df
 
 minmax_PC_df_plot = ggplot(plot1)+
   geom_point(aes(y=Months,x=Year_winter))+

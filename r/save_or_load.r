@@ -11,7 +11,7 @@ file_name = c("res/S_x_list.RData",
               "res/E_list.RData",
               "res/loc_x_list.RData",
               "res/cov_list.RData",
-              "res/E_list.RData")
+              "res/minmax_PC_df.RData")
 
 for(f in 1:length(file_name)){
   

@@ -13,8 +13,6 @@ EOF_maps_spp <- EOF_maps[[i]] %>%
 EOF_PC_spp <- EOF_PC[[i]] %>%
   filter(PC %in% paste0("PC",c(1:n_EOF[i])))
 
-
-
 color_name <- ggplotColours(n = n_EOF[i])
 list_EOF_map_sole <- list()
 list_EOF_PC_sole <- list()
@@ -117,7 +115,8 @@ EOF_sole_pres <- plot_grid(list_EOF_PC_sole[[1]],
                                              ymin = -Expected_repro_sole*0.3,
                                              ymax = Expected_repro_sole*0.3),
                                          fill = "grey70",alpha = 0.5)+
-                             geom_point(aes(x = Year_Month,y=Expected_repro_sole_optim - 1),col="red",alpha=0.5),
+                             geom_point(aes(x = Year_Month,y=Expected_repro_sole_optim - 1),
+                                        col="red",fill="red",alpha=0.5),
                            list_EOF_map_sole[[2]],
                            nrow = 2,align = "v",
                            rel_widths = c(1.05,0.5))
