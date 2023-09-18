@@ -104,8 +104,7 @@ EOF_seabass_pres <- plot_grid(list_EOF_PC_seabass[[1]]+
                                 geom_ribbon(aes(x = Year_Month,
                                                 ymin = -Expected_repro_seabass*0.1,
                                                 ymax = Expected_repro_seabass*0.35),
-                                            fill = "grey70",alpha = 0.5)+
-                                geom_point(aes(x = Year_Month,y=Expected_repro_seabass_optim - 1),col="red",alpha=0.5),
+                                            fill = "grey70",alpha = 0.5),
                               list_EOF_map_seabass[[1]],
                               NULL,NULL,
                               nrow = 2,align = "v",
@@ -113,3 +112,5 @@ EOF_seabass_pres <- plot_grid(list_EOF_PC_seabass[[1]]+
 
 ggsave(filename = "images/Dicentrarchus_Labrax/pres_EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
 
+# +
+#   geom_point(aes(x = Year_Month,y=Expected_repro_seabass_optim - 1),col="red",alpha=0.5)

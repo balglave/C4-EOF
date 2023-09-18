@@ -114,12 +114,12 @@ EOF_sole_pres <- plot_grid(list_EOF_PC_sole[[1]],
                              geom_ribbon(aes(x = Year_Month,
                                              ymin = -Expected_repro_sole*0.3,
                                              ymax = Expected_repro_sole*0.3),
-                                         fill = "grey70",alpha = 0.5)+
-                             geom_point(aes(x = Year_Month,y=Expected_repro_sole_optim - 1),
-                                        col="red",fill="red",alpha=0.5),
+                                         fill = "grey70",alpha = 0.5),
                            list_EOF_map_sole[[2]],
                            nrow = 2,align = "v",
                            rel_widths = c(1.05,0.5))
 
 ggsave(filename = "images/Solea_solea/pres_EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
 
+# +geom_point(aes(x = Year_Month,y=Expected_repro_sole_optim - 1),
+#              col="red",fill="red",alpha=0.5)

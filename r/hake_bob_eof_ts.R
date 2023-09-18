@@ -97,8 +97,7 @@ EOF_hake_bob_pres <- plot_grid(list_EOF_PC_hake_bob[[1]]+
                             geom_ribbon(aes(x = Year_Month,
                                             ymin = -Expected_repro_hake*0.6,
                                             ymax = Expected_repro_hake*0.1),
-                                        fill = "grey70",alpha = 0.5)+
-                            geom_point(aes(x = Year_Month,y=Expected_repro_hake_optim - 1),col="red",alpha=0.5),
+                                        fill = "grey70",alpha = 0.5),
                           list_EOF_map_hake_bob[[1]],
                           list_EOF_PC_hake_bob[[2]],
                           list_EOF_map_hake_bob[[2]],
@@ -106,3 +105,5 @@ EOF_hake_bob_pres <- plot_grid(list_EOF_PC_hake_bob[[1]]+
                           rel_widths = c(1.05,0.5))
 
 ggsave(filename = "images/Merluccius_merluccius_bob/EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
+
+# + geom_point(aes(x = Year_Month,y=Expected_repro_hake_optim - 1),col="red",alpha=0.5)

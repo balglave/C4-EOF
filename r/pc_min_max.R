@@ -78,18 +78,18 @@ minmax_PC_df_temp2 <- minmax_PC_df %>% filter(species %in% c("Hake_CS"),PC ==2)
 
 minmax_PC_df_temp3 <- bind_rows(minmax_PC_df_temp1,minmax_PC_df_temp2)
 
-month_name_winter = c("September(t)",
-                      "October(t)",
-                      "November(t)",
-                      "December(t)",
-                      "January(t+1)",
-                      "February(t+1)",
-                      "March(t+1)",
-                      "April(t+1)",
-                      "May(t+1)",
-                      "June(t+1)",
-                      "July(t+1)",
-                      "August(t+1)" )
+month_name_winter = c("01 - September(t)",
+                      "02 - October(t)",
+                      "03 - November(t)",
+                      "04 - December(t)",
+                      "05 - January(t+1)",
+                      "06 - February(t+1)",
+                      "07 - March(t+1)",
+                      "08 - April(t+1)",
+                      "09 - May(t+1)",
+                      "10 - June(t+1)",
+                      "11 _ July(t+1)",
+                      "12 - August(t+1)" )
 
 minmax_PC_df_temp3$Months = NA
 minmax_PC_df_temp3$Months[which(minmax_PC_df_temp3$Month == 1)] = month_name_winter[5]
@@ -110,24 +110,60 @@ minmax_PC_df_temp3$Year_winter = as.character(minmax_PC_df_temp3$Year_winter)
 
 minmax_PC_df_temp3$species = factor(minmax_PC_df_temp3$species,levels = c("Sole","Hake_BoB","Hake_CS","Seabass"))
 
-plot1 <- bind_rows(minmax_PC_df_temp3 %>% filter(species %in% c("Sole")), minmax_PC_df_temp3 %>% filter(species %in% c("Hake_BoB","Seabass"),PC==1))
+pheno_lag_df <- bind_rows(minmax_PC_df_temp3 %>% filter(species %in% c("Sole")), minmax_PC_df_temp3 %>% filter(species %in% c("Hake_BoB","Seabass"),PC==1))
 
-plot1$species <- as.character(plot1$species)
-plot1$species[which(plot1$species == "Hake_BoB")] <- "Hake"
-plot1$species <- factor(plot1$species,levels = c("Sole","Hake","Seabass"))
+pheno_lag_df$species <- as.character(pheno_lag_df$species)
+pheno_lag_df$species[which(pheno_lag_df$species == "Hake_BoB")] <- "Hake"
+pheno_lag_df$species <- factor(pheno_lag_df$species,levels = c("Sole","Hake","Seabass"))
 
-Expected_repro_df
+pheno_lag_df_2 <- pheno_lag_df %>% 
+  select(-value) %>% 
+  filter(!(species == "Sole" & PC == 1))
 
-minmax_PC_df_plot = ggplot(plot1)+
-  geom_point(aes(y=Months,x=Year_winter))+
-  geom_line(aes(y=Months,x=Year_winter,group=1))+
-  facet_grid(rows = vars(species,PC))+
+Expected_repro_df_2 <- Expected_repro_df %>% 
+  dplyr::select(-Expected_repro_sole_optim,
+                -Expected_repro_hake_optim,
+                -Expected_repro_seabass_optim,
+                -bottomT,-SST) %>% 
+  pivot_longer(Expected_repro_sole:Expected_repro_seabass) %>% 
+  rename(species = name) %>% 
+  mutate(species = ifelse(str_detect(species,"sole"),"Sole",species)) %>% 
+  mutate(species = ifelse(str_detect(species,"hake"),"Hake",species)) %>% 
+  mutate(species = ifelse(str_detect(species,"seabass"),"Seabass",species))
+
+Month_df <- data.frame(Month = c(9,10,11,12,1,2,3,4,5,6,7,8),
+                       Months = month_name_winter)
+
+Year_df <- data.frame(Year = 2008:2018,
+                      Year_winter = paste0(2007:2017,
+                                          "/",2008:2018))
+
+Expected_repro_df_3 <- Expected_repro_df_2 %>% 
+  inner_join(Month_df) %>% 
+  inner_join(Year_df) %>% 
+  filter(value == 1)
+
+pheno_lag_df_2$Months <- factor(pheno_lag_df_2$Months,levels = month_name_winter)
+
+Expected_repro_df_3$Months <- factor(Expected_repro_df_3$Months,levels = month_name_winter)
+pheno_lag_df_2 <- pheno_lag_df_2 %>% mutate(indic_phen=1)
+Expected_repro_df_3 <- Expected_repro_df_3 %>%  mutate(indic_max=1)
+plot1 <- full_join(Expected_repro_df_3,pheno_lag_df_2)
+
+plot1$species <- factor(plot1$species,levels=c("Sole","Hake","Seabass"))
+
+minmax_PC_df_plot = ggplot()+
+  facet_grid(rows = vars(species))+
+  geom_point(data = plot1[which(plot1$indic_phen == 1),], aes(y=factor(Months),x=Year_winter))+
+  geom_line(data = plot1[which(plot1$indic_phen == 1),], aes(y=factor(Months),x=Year_winter,group=1))+
   # ggtitle("Minimum principal component value")+
   theme_bw()+
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust = 0.5,face = "bold"),
         axis.text.x = element_text(angle = 90,vjust = 0.5))+
-  ylab("")+xlab("")
+  ylab("")+xlab("") +
+  geom_point(data = plot1[which(plot1$indic_max == 1),],
+             aes(y=Months,x=Year_winter),col="grey",size=3,alpha=0.5)
 
 
 # -- Represent th
@@ -136,3 +172,15 @@ ggsave(paste0("images/minmax_PC_plot.png"),
 
 
 save(minmax_PC_df_temp3, file="res/minmax_PC_df_temp3.RData")
+
+# ## Compare median of the range to maximum of the PC
+# plot1 %>%
+#   filter(Year > 2008) %>%
+#   filter(indic_phen == 1) %>%
+#   mutate(rk_month = as.numeric(str_sub(Months,1,2))) %>%
+#   group_by(Year_winter,species) %>%
+#   dplyr::summarise(indic_repro_period = min(rk_month,na.rm=T)) %>%
+#   inner_join(pheno_lag_df_2) %>%
+#   group_by(species) %>%
+#   summarise(r2 = cor(indic_repro_period,Month,method="spearman"),
+#             p_val = cor.test(indic_repro_period,Month,method="spearman")$p.value)
