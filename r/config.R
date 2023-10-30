@@ -30,7 +30,20 @@ opt_temp_df <- data.frame(species = c("Sole","Hake","Seabass"),
 copernicus.var <- c("so","bottomT","chl","thetao","o2") # "so": salinity, "chl": chlorophyll A, "thetao": SST
 # c("so","bottomT","thetao","fe","nppv","nh4","si","phyc","po4","no3","zeu","chl","o2")
 
-extract_covariates <- T # Extract covariates
+extract_covariates <- F # Extract covariates
 cov_file <- "C:/Users/test/Desktop/phd_projects/phd_full_codes/data/raw/Envir.Data/CopernicusData/" # used only if extract_covariate == T, need to have covariates on the computer
 
 process_model_outputs <- F
+
+# Make time step dataframe
+year_start <- 2008
+year_end <- 2018
+year_vec <- year_start:year_end # time period
+month_vec <- 1:12
+quarter_month_df <- data.frame(Month=1:12,Quarter=rep(1:4,each = 3))
+time.step_df <- expand.grid(1:12,year_start:year_end)
+colnames(time.step_df) <- c("Month","Year")
+time.step_df <- time.step_df %>%
+  inner_join(quarter_month_df) %>%
+  mutate(Year_Month = paste0(Year,"_",ifelse(Month<10,paste0("0",Month),Month)),
+         t = 1:nrow(time.step_df))

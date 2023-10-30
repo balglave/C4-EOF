@@ -2,10 +2,12 @@
 ## Library and functions
 ########################
 
+library(confintr)
 library(cowplot)
 library(colorspace)
 library(FactoMineR)
 library(raster)
+library(rcompanion)
 library(rnaturalearth)
 library(RNetCDF)
 library(sf)

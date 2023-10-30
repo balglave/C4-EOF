@@ -32,7 +32,7 @@ clust_t_plot <- ggplot(data=clust_t_df,
 
 ggsave(filename = "images/Merluccius_merluccius_cs/EOF_clust_t_plot_hake_cs.png",width = 7.5,height = 7.5)
 
-png(paste0("images/Merluccius_merluccius_cs/EOF_t_tree_hake_cs.png"),res = 75,pointsize = 1/(6*75))
+png(paste0("images/Merluccius_merluccius_cs/EOF_t_tree_hake_cs.png"),res = 75)
 
 plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
@@ -102,7 +102,7 @@ ggsave(paste0("images/Merluccius_merluccius_cs/EOF_clust_x_hake_cs.png"),
        width=10,height=10)
 
 png(paste0("images/Merluccius_merluccius_cs/EOF_x_tree_hake_cs.png"),
-    res = 75,pointsize = 1/(3*75))
+    res = 75)
 
 plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,

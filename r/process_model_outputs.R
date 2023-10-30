@@ -81,19 +81,6 @@ for(i in 1:length(main_c)){
     mutate(Year_Month = paste0(Year,"_",ifelse(Month<10,paste0("0",Month),Month))) %>%
     dplyr::select(-t)
   
-  # Make time step dataframe
-  year_start <- min(S_x_df$Year)
-  year_end <- max(S_x_df$Year)
-  year_vec <- unique(S_x_df$Year) # time period
-  month_vec <- 1:12
-  quarter_month_df <- data.frame(Month=1:12,Quarter=rep(1:4,each = 3))
-  time.step_df <- expand.grid(1:12,year_start:year_end)
-  colnames(time.step_df) <- c("Month","Year")
-  time.step_df <- time.step_df %>%
-    inner_join(quarter_month_df) %>%
-    mutate(Year_Month = paste0(Year,"_",ifelse(Month<10,paste0("0",Month),Month)),
-           t = 1:nrow(time.step_df))
-  
   S_x_df <- S_x_df %>%
     inner_join(time.step_df)
   

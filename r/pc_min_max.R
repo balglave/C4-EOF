@@ -3,8 +3,6 @@
 ##############################################
 # B. Alglave
 
-load("res/minmax_PC_df.RData")
-
 ## Build vectors and df to represent the Y during winter months
 #--------------------------------------------------------------
 Year <- unique(S_x_list[4][[1]]$Year)
@@ -48,7 +46,7 @@ for(i in 1:4){
     EOF_PC_spp_4 <- EOF_PC_spp_3 %>% mutate(value=if_else( PC=="PC2", value ,-value))
     
     for(year in 2008:2018){
-      toto1 = EOF_PC_spp_4 %>% filter( (Year %in% c(year)) & (Month %in% c(1,2,3))) 
+      toto1 = EOF_PC_spp_4 %>% filter( (Year %in% c(year)) & (Month %in% c(1,2,3)))
       toto2 = EOF_PC_spp_4 %>% 
         filter((Year %in% c(year-1))&(Month %in% c(9,10,11,12)))
       
@@ -117,7 +115,7 @@ pheno_lag_df$species[which(pheno_lag_df$species == "Hake_BoB")] <- "Hake"
 pheno_lag_df$species <- factor(pheno_lag_df$species,levels = c("Sole","Hake","Seabass"))
 
 pheno_lag_df_2 <- pheno_lag_df %>% 
-  select(-value) %>% 
+  dplyr::select(-value) %>% 
   filter(!(species == "Sole" & PC == 1))
 
 Expected_repro_df_2 <- Expected_repro_df %>% 
@@ -152,6 +150,17 @@ plot1 <- full_join(Expected_repro_df_3,pheno_lag_df_2)
 
 plot1$species <- factor(plot1$species,levels=c("Sole","Hake","Seabass"))
 
+
+# Problem with September of year 2011/2012
+# In fact, reproduction occurs on February
+plot1$indic_phen[which(plot1$species == "Hake" &
+                         plot1$Year_winter == "2012/2012" &
+                         plot1$Months == "01 - September(t)")] <- NA
+
+plot1$indic_phen[which(plot1$species == "Hake" &
+                         plot1$Year_winter == "2011/2012" &
+                         plot1$Months == "06 - February(t+1)")] <- 1
+
 minmax_PC_df_plot = ggplot()+
   facet_grid(rows = vars(species))+
   geom_point(data = plot1[which(plot1$indic_phen == 1),], aes(y=factor(Months),x=Year_winter))+
@@ -174,13 +183,35 @@ ggsave(paste0("images/minmax_PC_plot.png"),
 save(minmax_PC_df_temp3, file="res/minmax_PC_df_temp3.RData")
 
 # ## Compare median of the range to maximum of the PC
-# plot1 %>%
-#   filter(Year > 2008) %>%
-#   filter(indic_phen == 1) %>%
-#   mutate(rk_month = as.numeric(str_sub(Months,1,2))) %>%
-#   group_by(Year_winter,species) %>%
-#   dplyr::summarise(indic_repro_period = min(rk_month,na.rm=T)) %>%
-#   inner_join(pheno_lag_df_2) %>%
-#   group_by(species) %>%
-#   summarise(r2 = cor(indic_repro_period,Month,method="spearman"),
-#             p_val = cor.test(indic_repro_period,Month,method="spearman")$p.value)
+cor_measure = plot1 %>%
+  filter(Year > 2008) %>%
+  # filter(indic_phen == 1) %>%
+  mutate(rk_month = as.numeric(str_sub(Months,1,2))) %>%
+  group_by(Year_winter,species) %>%
+  dplyr::summarise(indic_repro_period = min(rk_month,na.rm=T)) %>%
+  inner_join(pheno_lag_df_2)
+
+## Correlation measures
+cor_measure %>%
+  group_by(species) %>%
+  summarise(r2 = cor(indic_repro_period,Month,method="spearman"),
+            p_val = cor.test(indic_repro_period,Month,method="spearman")$p.value)
+
+## V cramer
+for(sp_i in c("Sole","Hake","Seabass")){
+  
+  print("----------------------------------")
+  print(paste0(sp_i," --------------------------"))
+  cor_measure_2 <- cor_measure %>% 
+    filter(species == sp_i)
+  Begin_repro <- as.factor(cor_measure_2$indic_repro_period)
+  Repro_month <- as.factor(cor_measure_2$Months)
+  test <- data.frame(Repro_month = as.character(Repro_month),
+                     Begin_repro = as.character(Begin_repro))
+  print(table(test))
+  test_chisq <- chisq.test(Repro_month,Begin_repro)
+  # print(test_chisq)
+  print(cramersv(test_chisq))
+  print(ci_cramersv(test_chisq,type = "bootstrap"))
+  
+}

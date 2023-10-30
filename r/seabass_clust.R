@@ -32,7 +32,7 @@ clust_t_plot <- ggplot(data=clust_t_df,
 
 ggsave(filename = "images/Dicentrarchus_Labrax/EOF_clust_t_plot_seabass.png",width = 7.5,height = 7.5)
 
-png(paste0("images/Dicentrarchus_Labrax/EOF_t_tree_seabass.png"),res = 75,pointsize = 1/(6*75))
+png(paste0("images/Dicentrarchus_Labrax/EOF_t_tree_seabass.png"),res = 75)
 
 plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
@@ -105,7 +105,7 @@ ggsave(paste0("images/Dicentrarchus_Labrax/EOF_clust_x_seabass.png"),
 
 
 png(paste0("images/Dicentrarchus_Labrax/EOF_x_tree_seabass.png"),
-    res = 75,pointsize = 1/(3*75))
+    res = 75)
 
 plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,

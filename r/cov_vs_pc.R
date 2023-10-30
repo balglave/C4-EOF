@@ -1,11 +1,6 @@
 #############################
 ## Compare PC with covariates
 #############################
-load("res/cov_list.RData")
-load("res/loc_x_list.RData")
-load("res/EOF_maps.RData")
-load("res/S_x_list.RData")
-load("res/EOF_PC.RData")
 
 # Join EOF maps, covariate data frame, latent field dataframe, PC coefficients
 PC_cov_list = list()
