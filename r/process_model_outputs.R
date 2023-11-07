@@ -197,6 +197,18 @@ for(i in 1:length(main_c)){
   
   ## Conduct svd (singular vector decomposition)
   E <- svd(Zt)
+  
+  # ## Rotated EOF
+  # test <- eof(Zt,n=3)
+  # test$amplitude
+  # test_2 <- test$REOF %>% 
+  #   cbind(loc_x_pred)
+  # 
+  # ggplot(test_2)+
+  #   geom_point(aes(x=x,y=y,
+  #                  col=EOF2))+
+  #   scale_color_distiller(palette = "Spectral")
+  
   E_list[[i]] <- E
   
   # Eigen values

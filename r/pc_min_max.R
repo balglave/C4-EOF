@@ -154,7 +154,7 @@ plot1$species <- factor(plot1$species,levels=c("Sole","Hake","Seabass"))
 # Problem with September of year 2011/2012
 # In fact, reproduction occurs on February
 plot1$indic_phen[which(plot1$species == "Hake" &
-                         plot1$Year_winter == "2012/2012" &
+                         plot1$Year_winter == "2011/2012" &
                          plot1$Months == "01 - September(t)")] <- NA
 
 plot1$indic_phen[which(plot1$species == "Hake" &
@@ -198,6 +198,9 @@ cor_measure %>%
             p_val = cor.test(indic_repro_period,Month,method="spearman")$p.value)
 
 ## V cramer
+png(file="images/beginrepro_vs_repromonth.png",
+    width=600, height=500)
+par(mfrow = c(2,2))
 for(sp_i in c("Sole","Hake","Seabass")){
   
   print("----------------------------------")
@@ -208,10 +211,22 @@ for(sp_i in c("Sole","Hake","Seabass")){
   Repro_month <- as.factor(cor_measure_2$Months)
   test <- data.frame(Repro_month = as.character(Repro_month),
                      Begin_repro = as.character(Begin_repro))
-  print(table(test))
+  matrix_date <- as.data.frame(table(test)) %>% 
+    pivot_wider(names_from = Begin_repro,values_from = Freq) %>% 
+    dplyr::select(-Repro_month) %>% 
+    as.matrix()
+  col.vec <- rev(terrain.colors(1+max(matrix_date)))
+  par(mar=c(5.1, 4.1, 4.1, 4.1)) # adapt margins
+  plot(matrix_date,
+       main = sp_i,
+       ylab = "First favorable month", xlab = "Reproduction month",
+       axis.col=list(side=1, las=2), axis.row = list(side=2, las=1),
+       na.col="white",col=col.vec,breaks=0:length(col.vec))
+  
   test_chisq <- chisq.test(Repro_month,Begin_repro)
   # print(test_chisq)
   print(cramersv(test_chisq))
   print(ci_cramersv(test_chisq,type = "bootstrap"))
   
 }
+dev.off()
