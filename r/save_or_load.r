@@ -27,7 +27,7 @@ for(f in 1:length(file_name)){
     request_text <- paste0("save(data=\"",data_name,"\",file=\"",file_name[f],"\")")
     expression_text <- expression(request_text)
     eval(expr = expression_text)
-   
+
   }
 
 }

@@ -118,6 +118,7 @@ pheno_lag_df_2 <- pheno_lag_df %>%
   dplyr::select(-value) %>% 
   filter(!(species == "Sole" & PC == 1))
 
+# Suitable range
 Expected_repro_df_2 <- Expected_repro_df %>% 
   dplyr::select(-Expected_repro_sole_optim,
                 -Expected_repro_hake_optim,
@@ -128,6 +129,18 @@ Expected_repro_df_2 <- Expected_repro_df %>%
   mutate(species = ifelse(str_detect(species,"sole"),"Sole",species)) %>% 
   mutate(species = ifelse(str_detect(species,"hake"),"Hake",species)) %>% 
   mutate(species = ifelse(str_detect(species,"seabass"),"Seabass",species))
+
+# # Optimum range
+# Expected_repro_df_2 <- Expected_repro_df %>% 
+#   dplyr::select(-Expected_repro_sole_optim,
+#                 -Expected_repro_hake_optim,
+#                 -Expected_repro_seabass_optim,
+#                 -bottomT,-SST) %>% 
+#   pivot_longer(Expected_repro_sole_optim:Expected_repro_seabass_optim) %>% 
+#   rename(species = name) %>% 
+#   mutate(species = ifelse(str_detect(species,"sole"),"Sole",species)) %>% 
+#   mutate(species = ifelse(str_detect(species,"hake"),"Hake",species)) %>% 
+#   mutate(species = ifelse(str_detect(species,"seabass"),"Seabass",species))
 
 Month_df <- data.frame(Month = c(9,10,11,12,1,2,3,4,5,6,7,8),
                        Months = month_name_winter)

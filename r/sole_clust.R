@@ -36,8 +36,8 @@ ggsave(filename = "images/Solea_solea/EOF_clust_t_plot.png",width = 7.5,height =
 png(paste0("images/Solea_solea/EOF_t_tree_Sole.png"),res = 75)
 
 plot(res_t, axes=c(1,2), choice="tree", rect=TRUE, 
-     draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
-     new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+     draw.tree=TRUE, ind.names=F, t.level="all", title=NULL,
+     new.plot=FALSE, max.plot=15, tree.barplot=TRUE,labels=F,
      centers.plot=FALSE)
 
 dev.off()
@@ -110,7 +110,7 @@ png(paste0("images/Solea_solea/EOF_x_tree_sole.png"),
 
 plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
-     new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+     new.plot=FALSE, max.plot=15, tree.barplot=TRUE,labels=F,
      centers.plot=FALSE)
 
 dev.off()
