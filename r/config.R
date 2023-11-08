@@ -31,7 +31,7 @@ copernicus.var <- c("so","bottomT","chl","thetao","o2") # "so": salinity, "chl":
 # c("so","bottomT","thetao","fe","nppv","nh4","si","phyc","po4","no3","zeu","chl","o2")
 
 extract_covariates <- F # Extract covariates
-cov_file <- "C:/Users/test/Desktop/phd_projects/phd_full_codes/data/raw/Envir.Data/CopernicusData/" # used only if extract_covariate == T, need to have covariates on the computer
+cov_file <- "../phd_full_codes/data/raw/Envir.Data/CopernicusData/" # used only if extract_covariate == T, need to have covariates on the computer
 
 process_model_outputs <- F
 

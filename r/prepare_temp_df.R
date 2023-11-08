@@ -2,6 +2,10 @@
 #------------------------------------------------
 # Timing of suitable temperature for reproduction
 
+# cov_df_full %>%
+#   filter(Year == 2008) %>%
+#   group_by(Year,Month) %>%
+#   summarise(SST = mean(thetao,na.rm = T))
 
 cov_ts_df <- cov_list[[1]] %>%
   group_by(Year,Month) %>% 
@@ -70,12 +74,12 @@ for(i in 1:length(step_vec)){
   
 }
 
-# ggplot()+
-#   geom_point(data=Expected_repro_df,aes(x=Year_Month,y=so),col="red")+
-#   geom_vline(xintercept=Expected_repro_df$Year_Month[which(str_detect(Expected_repro_df$Year_Month,"_01"))],
-#              linetype="dashed", color = "skyblue", linewidth = 1)+
-#   geom_point(data=Expected_repro_df,aes(x=Year_Month,y=SST))+
-#   geom_point(data=Expected_repro_df[which(Expected_repro_df$Expected_repro_sole_optim == 1),],
-#              aes(x=Year_Month,y=SST),col="red")+
-#   geom_hline(yintercept = 10) +
-#   geom_hline(yintercept = 11)
+ggplot()+
+  geom_point(data=Expected_repro_df,aes(x=Year_Month,y=SST),col="red")+
+  geom_vline(xintercept=Expected_repro_df$Year_Month[which(str_detect(Expected_repro_df$Year_Month,"_01"))],
+             linetype="dashed", color = "skyblue", linewidth = 1)+
+  geom_point(data=Expected_repro_df,aes(x=Year_Month,y=SST))+
+  geom_point(data=Expected_repro_df[which(Expected_repro_df$Expected_repro_sole == 1),],
+             aes(x=Year_Month,y=SST),col="red")+
+  geom_hline(yintercept = 10) +
+  geom_hline(yintercept = 11)

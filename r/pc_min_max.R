@@ -39,14 +39,16 @@ for(i in 1:4){
     
     EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
     EOF_PC_spp_2 <- EOF_PC_spp %>% filter(PC == paste0("PC",j))
-    EOF_PC_spp_2_1 <- left_join(EOF_PC_spp_2 %>% filter(Month %in% c(1,2,3)),as_tibble(Year_table),by="Year")
+    EOF_PC_spp_2_1 <- left_join(EOF_PC_spp_2 %>% filter(Month %in% c(1,2,3,3,4,5,6,7,8)),as_tibble(Year_table),by="Year")
     EOF_PC_spp_2_2 <- left_join(EOF_PC_spp_2 %>% filter(Month %in% c(9,10,11,12)),as_tibble(Year_table_1),by="Year")
-    EOF_PC_spp_2_2 <- EOF_PC_spp_2_2  %>% mutate(Year_winter=Year_winter_1)
-    EOF_PC_spp_3 <- bind_rows(EOF_PC_spp_2_1,EOF_PC_spp_2_2)
+    # EOF_PC_spp_2_2 <- EOF_PC_spp_2_2  %>% mutate(Year_winter=Year_winter_1)
+    EOF_PC_spp_3 <- bind_rows(EOF_PC_spp_2_1,EOF_PC_spp_2_2) %>% 
+      mutate(Year_winter = ifelse(is.na(Year_winter_1),Year_winter,Year_winter_1)) %>% 
+      dplyr::select(-Year_winter_1)
     EOF_PC_spp_4 <- EOF_PC_spp_3 %>% mutate(value=if_else( PC=="PC2", value ,-value))
     
     for(year in 2008:2018){
-      toto1 = EOF_PC_spp_4 %>% filter( (Year %in% c(year)) & (Month %in% c(1,2,3)))
+      toto1 = EOF_PC_spp_4 %>% filter( (Year %in% c(year)) & (Month %in% c(1,2,3,3,4,5,6,7,8)))
       toto2 = EOF_PC_spp_4 %>% 
         filter((Year %in% c(year-1))&(Month %in% c(9,10,11,12)))
       
@@ -145,13 +147,9 @@ Expected_repro_df_2 <- Expected_repro_df %>%
 Month_df <- data.frame(Month = c(9,10,11,12,1,2,3,4,5,6,7,8),
                        Months = month_name_winter)
 
-Year_df <- data.frame(Year = 2008:2018,
-                      Year_winter = paste0(2007:2017,
-                                          "/",2008:2018))
-
 Expected_repro_df_3 <- Expected_repro_df_2 %>% 
   inner_join(Month_df) %>% 
-  inner_join(Year_df) %>% 
+  mutate(Year_winter = ifelse(Month<10,paste0(Year-1,"/",Year),paste0(Year,"/",Year+1))) %>% 
   filter(value == 1)
 
 pheno_lag_df_2$Months <- factor(pheno_lag_df_2$Months,levels = month_name_winter)
@@ -159,7 +157,11 @@ pheno_lag_df_2$Months <- factor(pheno_lag_df_2$Months,levels = month_name_winter
 Expected_repro_df_3$Months <- factor(Expected_repro_df_3$Months,levels = month_name_winter)
 pheno_lag_df_2 <- pheno_lag_df_2 %>% mutate(indic_phen=1)
 Expected_repro_df_3 <- Expected_repro_df_3 %>%  mutate(indic_max=1)
-plot1 <- full_join(Expected_repro_df_3,pheno_lag_df_2)
+
+Expected_repro_df_4 <- Expected_repro_df_3 %>% 
+  mutate(Year_Month = paste0(Year,"_",ifelse(Month>9,Month,paste0("0",Month))))
+
+plot1 <- full_join(Expected_repro_df_4,pheno_lag_df_2)
 
 plot1$species <- factor(plot1$species,levels=c("Sole","Hake","Seabass"))
 
@@ -210,10 +212,14 @@ cor_measure %>%
   summarise(r2 = cor(indic_repro_period,Month,method="spearman"),
             p_val = cor.test(indic_repro_period,Month,method="spearman")$p.value)
 
+ggplot(cor_measure)+
+  geom_point(aes(x=indic_repro_period,y=Month))+
+  facet_wrap(.~species)
+
 ## V cramer
 png(file="images/beginrepro_vs_repromonth.png",
     width=600, height=500)
-par(mfrow = c(2,2))
+par(mfrow = c(3,2))
 for(sp_i in c("Sole","Hake","Seabass")){
   
   print("----------------------------------")
@@ -224,6 +230,8 @@ for(sp_i in c("Sole","Hake","Seabass")){
   Repro_month <- as.factor(cor_measure_2$Months)
   test <- data.frame(Repro_month = as.character(Repro_month),
                      Begin_repro = as.character(Begin_repro))
+  
+  ## Count matrix (quali variable)
   matrix_date <- as.data.frame(table(test)) %>% 
     pivot_wider(names_from = Begin_repro,values_from = Freq) %>% 
     dplyr::select(-Repro_month) %>% 
@@ -236,10 +244,20 @@ for(sp_i in c("Sole","Hake","Seabass")){
        axis.col=list(side=1, las=2), axis.row = list(side=2, las=1),
        na.col="white",col=col.vec,breaks=0:length(col.vec))
   
+  ## V of Cramer
   test_chisq <- chisq.test(Repro_month,Begin_repro)
   # print(test_chisq)
   print(cramersv(test_chisq))
   print(ci_cramersv(test_chisq,type = "bootstrap"))
+  
+  ## Quanti variable
+  test2 <- data.frame(Repro_month2 = as.numeric(str_sub(Repro_month,1,2)),
+                      Begin_repro2 = as.numeric(as.character(Begin_repro)))
+  
+  plot(y=test2$Repro_month2,x=test2$Begin_repro2)
+  
+  print(cor.test(test2$Repro_month2,test2$Begin_repro2,method="spearman")$estimate)
+  print(cor.test(test2$Repro_month2,test2$Begin_repro2,method="spearman")$p.val)
   
 }
 dev.off()

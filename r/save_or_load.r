@@ -31,3 +31,5 @@ for(f in 1:length(file_name)){
   }
 
 }
+
+# save(data=cov_list,file="res/cov_list.RData")

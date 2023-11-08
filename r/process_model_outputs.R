@@ -158,8 +158,15 @@ for(i in 1:length(main_c)){
         cov_df <- cov_df %>% 
           mutate(Year = year,Month = month)
         
-        if(year == year_start) cov_df_full = cov_df
-        if(year != year_start) cov_df_full = rbind(cov_df,cov_df_full)
+        if(year == year_start & month == 1){
+          
+          cov_df_full = cov_df
+          
+        }else{
+          
+          cov_df_full = rbind(cov_df,cov_df_full)
+          
+        }
         
       }
       
@@ -170,7 +177,13 @@ for(i in 1:length(main_c)){
   }
   
   
-  
+ # cov_df_full %>%
+ #   filter(Year == 2008 & Month == 1) %>%
+ #   group_by(cell,x,y) %>%
+ #   summarise(SST = mean(thetao,na.rm=T)) %>%
+ #   ggplot()+
+ #   geom_point(aes(x=x,y=y,col=SST))
+   
   ##################################################
   
   ##-----------------------------------------------------------------------------------------
