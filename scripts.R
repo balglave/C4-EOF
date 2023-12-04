@@ -48,6 +48,9 @@ source("r/seabass_eof_ts.R")
 ## Picture of all
 source("r/picture_eof_ts.R")
 
+## Average spatial pattern
+source("r/mean_pattern.R")
+
 ## Clustering analysis
 #---------------------
 ## Sole
