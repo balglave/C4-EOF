@@ -116,9 +116,9 @@ dev.off()
 
 test <- plot_grid(title_sole,clust_plot_sole,
                   title_hake_bob,clust_plot_hake_bob,
-                  title_hake_cs,clust_plot_hake_cs,
+                  # title_hake_cs,clust_plot_hake_cs,
                   title_seabass,clust_plot_seabass,
-                  nrow = 4,rel_widths = c(0.25,1))
+                  nrow = 3,rel_widths = c(0.25,1))
 
 ggsave(paste0("images/EOF_clust.png"),
        width=13.5,height=13.5)
