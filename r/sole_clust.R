@@ -10,7 +10,9 @@ res_t <- HCPC(hcpc_data,nb.clust = 3,graph = F)
 clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
                          dim2=res_t$data.clust[,2],
                          clust=res_t$data.clust$clust,
-                         Year_Month=time.step_df$Year_Month)
+                         Year_Month=time.step_df$Year_Month,
+                         dim1_stand=PC_list[[i]]$X1,
+                         dim2_stand=PC_list[[i]]$X2)
 
 var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Sole")]
 var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Sole")]
@@ -53,7 +55,10 @@ clust_x_df <- cbind(loc_x_list[[i]],
                     dim1=res_x$data.clust[,1],
                     dim2=res_x$data.clust[,2],
                     dim3=res_x$data.clust[,3],
-                    clust=res_x$data.clust$clust)
+                    clust=res_x$data.clust$clust,
+                    dim1_stand=V_list[[i]][,1],
+                    dim2_stand=V_list[[i]][,2],
+                    dim3_stand=V_list[[i]][,3])
 
 clust_map_plot <- ggplot(data=clust_x_df)+
   geom_point(aes(x=x,y=y,col=factor(clust)))+
@@ -114,6 +119,43 @@ plot(res_x, axes=c(1,2), choice="tree", rect=TRUE,
      centers.plot=FALSE)
 
 dev.off()
+
+## Plot projections plans for time steps and locations
+clust_x_df$dim1_stand <- clust_x_df$dim1/(range(clust_x_df$dim1)[2]-range(clust_x_df$dim1)[1])
+clust_x_df$dim2_stand <- clust_x_df$dim2/(range(clust_x_df$dim2)[2]-range(clust_x_df$dim2)[1])
+clust_x_df$dim3_stand <- clust_x_df$dim3/(range(clust_x_df$dim3)[2]-range(clust_x_df$dim3)[1])
+
+clust_t_df$dim1_stand <- clust_t_df$dim1 / (range(clust_t_df$dim1)[2] - range(clust_t_df$dim1)[1])
+clust_t_df$dim2_stand <- clust_t_df$dim2 / (range(clust_t_df$dim2)[2] - range(clust_t_df$dim2)[1])
+
+proj_plot <- ggplot()+
+  geom_point(data=clust_x_df,
+             aes(x=dim1_stand,y=dim2_stand,
+                 col=clust),alpha=0.75)+
+  geom_point(data=clust_t_df,
+   aes(x=dim1_stand,y=dim2_stand,
+       fill=clust),shape=23,size=3)+
+  geom_text(data=clust_t_df,
+            aes(x=dim1_stand,y=dim2_stand,label=Year_Month),
+            nudge_y = 0.04,check_overlap = T)+
+  geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+  theme_minimal()+
+  xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+  ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust=0.5),
+        legend.title = element_blank())+
+  scale_color_brewer(palette="Spectral")+
+  scale_fill_brewer(palette = "Set1")
+
+proj_map_plot <- plot_grid(proj_plot,
+                             clust_map_plot,
+                             align = "v",ncol = 2)
+
+
+ggsave(paste0("images/Solea_solea/proj_map_plot.png"),
+       width=12,height=5)
+
 
 ## Plot evolution of biomass in each cluster
 trend_clust <- inner_join(S_x_list[[i]],
