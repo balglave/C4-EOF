@@ -31,7 +31,7 @@ clust_t_plot <- ggplot(data=clust_t_df,
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  ggtitle("Time steps projection")
+  ggtitle("Time steps clusters")
 
 ggsave(filename = "images/Solea_solea/EOF_clust_t_plot.png",width = 7.5,height = 7.5)
 
@@ -70,7 +70,7 @@ clust_map_plot <- ggplot(data=clust_x_df)+
   coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
   theme(plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  ggtitle("Locations cluster")+
+  ggtitle("Locations clusters")+
   scale_color_brewer(palette="Spectral")
 
 clust_x_plot <- ggplot(data=clust_x_df,
@@ -84,7 +84,7 @@ clust_x_plot <- ggplot(data=clust_x_df,
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  ggtitle("Locations projection")+
+  ggtitle("Locations clusters")+
   scale_color_brewer(palette="Spectral")
 
 mean_patt_plot <- ggplot(data = mean_patt[[i]])+
@@ -113,10 +113,10 @@ ggsave(paste0("images/Solea_solea/EOF_clust_x_sole.png"),
 png(paste0("images/Solea_solea/EOF_x_tree_sole.png"),
     res = 75)
 
-plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
+plot.HCPC(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
      new.plot=FALSE, max.plot=15, tree.barplot=TRUE,labels=F,
-     centers.plot=FALSE)
+     centers.plot=FALSE,col="black")
 
 dev.off()
 
@@ -128,16 +128,10 @@ clust_x_df$dim3_stand <- clust_x_df$dim3/(range(clust_x_df$dim3)[2]-range(clust_
 clust_t_df$dim1_stand <- clust_t_df$dim1 / (range(clust_t_df$dim1)[2] - range(clust_t_df$dim1)[1])
 clust_t_df$dim2_stand <- clust_t_df$dim2 / (range(clust_t_df$dim2)[2] - range(clust_t_df$dim2)[1])
 
-proj_plot <- ggplot()+
+proj_loc_plot <- ggplot()+
   geom_point(data=clust_x_df,
-             aes(x=dim1_stand,y=dim2_stand,
+             aes(x=dim1,y=dim2,
                  col=clust),alpha=0.75)+
-  geom_point(data=clust_t_df,
-   aes(x=dim1_stand,y=dim2_stand,
-       fill=clust),shape=23,size=3)+
-  geom_text(data=clust_t_df,
-            aes(x=dim1_stand,y=dim2_stand,label=Year_Month),
-            nudge_y = 0.04,check_overlap = T)+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
   theme_minimal()+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
@@ -146,15 +140,35 @@ proj_plot <- ggplot()+
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   scale_color_brewer(palette="Spectral")+
-  scale_fill_brewer(palette = "Set1")
+  scale_fill_brewer(palette = "Set1")+
+  ggtitle("Locations clusters")
 
-proj_map_plot <- plot_grid(proj_plot,
-                             clust_map_plot,
-                             align = "v",ncol = 2)
 
+proj_ts_plot <- ggplot()+
+  geom_point(data=clust_t_df,
+   aes(x=dim1,y=dim2,
+       fill=clust),shape=23,size=3)+
+  geom_text(data=clust_t_df,
+            aes(x=dim1,y=dim2,label=Year_Month),
+            nudge_y = 3,check_overlap = T)+
+  geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+  theme_minimal()+
+  xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+  ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust=0.5),
+        legend.title = element_blank())+
+  scale_color_brewer(palette="Spectral")+
+  scale_fill_brewer(palette = "Set1")+
+  ggtitle("Time steps clusters")
+
+proj_map_plot <- plot_grid(proj_ts_plot,
+                           proj_loc_plot,
+                           clust_map_plot,
+                           align = "v",ncol = 3)
 
 ggsave(paste0("images/Solea_solea/proj_map_plot.png"),
-       width=12,height=5)
+       width=15,height=5)
 
 
 ## Plot evolution of biomass in each cluster

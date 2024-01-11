@@ -15,6 +15,7 @@ clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
 var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Seabass")]
 var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Seabass")]
 
+
 clust_t_plot <- ggplot(data=clust_t_df,
                        aes(x=dim1,y=dim2,
                            col=clust,
@@ -28,7 +29,8 @@ clust_t_plot <- ggplot(data=clust_t_df,
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
-        legend.title = element_blank())
+        legend.title = element_blank())+
+  ggtitle("Time steps clusters")
 
 ggsave(filename = "images/Dicentrarchus_Labrax/EOF_clust_t_plot_seabass.png",width = 7.5,height = 7.5)
 
@@ -43,7 +45,7 @@ dev.off()
 
 ## Clustering on space
 hcpc_data <- as.data.frame(V_list[[i]] %*% diag(E_list[[i]]$d))
-res_x <- HCPC(hcpc_data,nb.clust = 2 + 2,graph = F)
+res_x <- HCPC(hcpc_data,nb.clust = 2 ,graph = F)
 
 xlims <- range(pretty(loc_x_list[[i]]$x))
 ylims <- range(pretty(loc_x_list[[i]]$y))
@@ -54,17 +56,19 @@ clust_x_df <- cbind(loc_x_list[[i]],
                     dim3=res_x$data.clust[,3],
                     clust=res_x$data.clust$clust)
 
+
 clust_map_plot <- ggplot(data=clust_x_df)+
   geom_point(aes(x=x,y=y,col=factor(clust)))+
   theme_minimal()+
   theme(
     plot.title = element_text(hjust=0.5))+
-  xlab("Longitude (deg)") + ylab("Latitude (deg)")+
+  xlab("Longitude (deg)") + ylab("Latitude (deg)") +
   geom_sf(data = mapBase) +
   coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
   theme(plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  scale_color_brewer(palette="Set2")
+  ggtitle("Locations clusters")+
+  scale_color_brewer(palette="Spectral")
 
 clust_x_plot <- ggplot(data=clust_x_df,
                        aes(x=dim1,y=dim2,
@@ -77,7 +81,8 @@ clust_x_plot <- ggplot(data=clust_x_df,
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  scale_color_brewer(palette="Set2")
+  ggtitle("Locations clusters")+
+  scale_color_brewer(palette="Spectral")
 
 
 mean_patt_plot <- ggplot(data = mean_patt[[i]])+
@@ -95,13 +100,13 @@ mean_patt_plot <- ggplot(data = mean_patt[[i]])+
 
 
 clust_plot_seabass <- plot_grid(clust_t_plot,
-                                mean_patt_plot,
+                                # mean_patt_plot,
                                 clust_x_plot,
                                 clust_map_plot,
-                                align = "hv",nrow = 2)
+                                ncol = 3)
 
 ggsave(paste0("images/Dicentrarchus_Labrax/EOF_clust_x_seabass.png"),
-       width=10,height=10)
+       width=15,height=5)
 
 
 png(paste0("images/Dicentrarchus_Labrax/EOF_x_tree_seabass.png"),
@@ -109,7 +114,7 @@ png(paste0("images/Dicentrarchus_Labrax/EOF_x_tree_seabass.png"),
 
 plot(res_x, axes=c(1,2), choice="tree", rect=TRUE, 
      draw.tree=TRUE, ind.names=TRUE, t.level="all", title=NULL,
-     new.plot=FALSE, max.plot=15, tree.barplot=TRUE,
+     new.plot=FALSE, max.plot=15, tree.barplot=TRUE,labels=F,
      centers.plot=FALSE)
 
 dev.off()

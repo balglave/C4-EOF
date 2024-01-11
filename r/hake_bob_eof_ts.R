@@ -20,9 +20,9 @@ for(j in 1:n_EOF[i]){
   EOF_maps_spp_2 <- EOF_maps_spp %>% filter(EOF == paste0("EOF",j))
   EOF_map_plot <- ggplot()+
     geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) >= 1/nrow(loc_x_pred)),],  # Only plot the points that most contribute to the dimension
-               aes(x = x, y = y, col = value),size = 0.75,shape=16)+
+               aes(x = x, y = y, col = -value),size = 0.75,shape=16)+
     geom_point(data=EOF_maps_spp_2[which(abs(EOF_maps_spp_2$ContribVar) < 1/nrow(loc_x_pred)),],
-               aes(x = x, y = y, col = value),size = 0.5,shape=16,alpha=0.2)+
+               aes(x = x, y = y, col = -value),size = 0.5,shape=16,alpha=0.2)+
     scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
     theme_bw()+
     xlab("") + ylab("")+
@@ -40,7 +40,7 @@ for(j in 1:n_EOF[i]){
     left_join(Expected_repro_df[which(Expected_repro_df$Expected_repro_hake == 1),])
   
   EOF_time_series_plot <- ggplot(EOF_PC_spp_2,
-                                 aes(x=Year_Month,y=value,group=PC))+
+                                 aes(x=Year_Month,y=-value,group=PC))+
     geom_vline(xintercept=EOF_PC_spp_2$Year_Month[which(str_detect(EOF_PC_spp_2$Year_Month,"_01"))],
                linetype="dashed", color = "skyblue", linewidth = 1)+
     geom_hline(yintercept=0,linetype="dashed", color = "grey", linewidth = 1)+
@@ -95,8 +95,8 @@ for(j in 1:n_EOF[i]){
 
 EOF_hake_bob_pres <- plot_grid(list_EOF_PC_hake_bob[[1]]+
                             geom_ribbon(aes(x = Year_Month,
-                                            ymin = -Expected_repro_hake*0.6,
-                                            ymax = Expected_repro_hake*0.1),
+                                            ymin = -Expected_repro_hake*0.1,
+                                            ymax = Expected_repro_hake*0.6),
                                         fill = "grey70",alpha = 0.5),
                           list_EOF_map_hake_bob[[1]],
                           list_EOF_PC_hake_bob[[2]],

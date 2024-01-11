@@ -53,6 +53,8 @@ source("r/mean_pattern.R")
 
 ## Clustering analysis
 #---------------------
+source("r/function_hcpc_plot.R")
+
 ## Sole
 source("r/sole_clust.R")
 
@@ -60,7 +62,7 @@ source("r/sole_clust.R")
 source("r/hake_bob_clust.R")
 
 ## Hake - CS
-source("r/hake_cs_clust.R")
+# source("r/hake_cs_clust.R")
 
 ## Sea bass
 source("r/seabass_clust.R")
