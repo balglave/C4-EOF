@@ -47,3 +47,16 @@ time.step_df <- time.step_df %>%
   inner_join(quarter_month_df) %>%
   mutate(Year_Month = paste0(Year,"_",ifelse(Month<10,paste0("0",Month),Month)),
          t = 1:nrow(time.step_df))
+
+map_empty <- ggplot()+
+  theme_classic()+
+  theme(plot.title = element_text(hjust = 0.5,face = "bold"))+
+  xlab("") + ylab("")+
+  geom_sf(data = mapBase,fill="white",size=12)+
+  coord_sf(xlim = c(-7,0), ylim = c(43,50), expand = FALSE)
+
+map_empty_full <- cowplot::plot_grid(map_empty+ggtitle("Sole"),
+                   map_empty+ggtitle("Hake"),
+                   map_empty+ggtitle("Sea Bass"),ncol=3)
+
+ggsave("images/map_empty.png",width = 10,height = 5)
