@@ -71,7 +71,9 @@ clust_map_plot <- ggplot(data=clust_x_df)+
   theme(plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   ggtitle("Locations clusters")+
-  scale_color_brewer(palette="Spectral")
+  scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))
+
+  # scale_color_brewer(palette="Spectral")
 
 clust_x_plot <- ggplot(data=clust_x_df,
                        aes(x=dim1,y=dim2,
@@ -85,7 +87,9 @@ clust_x_plot <- ggplot(data=clust_x_df,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   ggtitle("Locations clusters")+
-  scale_color_brewer(palette="Spectral")
+  scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))
+
+  # scale_color_brewer(palette="Spectral")
 
 mean_patt_plot <- ggplot(data = mean_patt[[i]])+
   geom_point(aes(x=x,y=y,col=spat_mean))+
@@ -139,8 +143,7 @@ proj_loc_plot <- ggplot()+
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  scale_color_brewer(palette="Spectral")+
-  scale_fill_brewer(palette = "Set1")+
+  scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))+
   ggtitle("Locations clusters")
 
 
@@ -198,7 +201,7 @@ evol_ab_clust <- ggplot(trend_clust,
             col= "black", hjust = 1, vjust = 2)+
   coord_cartesian(clip = "off")+
   facet_wrap(.~clust,ncol=2,scales = "free_y",dir = "v")+
-  scale_color_brewer(palette="Spectral")+
+  scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))+
   ylim(0,NA)
 
 ggsave(paste0("images/Solea_solea/evol_ab_clust.png"),
