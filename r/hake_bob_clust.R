@@ -6,7 +6,7 @@
 ## Clustering on time
 i=2
 hcpc_data <- as.data.frame(as.matrix(PC_list[[i]]) %*% diag(E_list[[i]]$d))
-res_t <- HCPC(hcpc_data,nb.clust = 2,graph = F)
+res_t <- HCPC(-hcpc_data,nb.clust = 2,graph = F)
 clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
                          dim2=res_t$data.clust[,2],
                          clust=res_t$data.clust$clust,
@@ -44,7 +44,7 @@ dev.off()
 
 ## Clustering on space
 hcpc_data <- as.data.frame(V_list[[i]] %*% diag(E_list[[i]]$d))
-res_x <- HCPC(hcpc_data,nb.clust = 2,graph = F)
+res_x <- HCPC(-hcpc_data,nb.clust = 2,graph = F)
 
 xlims <- range(pretty(loc_x_list[[i]]$x))
 ylims <- range(pretty(loc_x_list[[i]]$y))
@@ -67,7 +67,9 @@ clust_map_plot <- ggplot(data=clust_x_df)+
   theme(plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   ggtitle("Locations clusters")+
-  scale_color_brewer(palette="Spectral")
+  scale_color_manual(values = c("#ABDDA4","#2B83BA"))
+
+# scale_color_brewer(palette="Spectral")
 
 clust_x_plot <- ggplot(data=clust_x_df,
                        aes(x=dim1,y=dim2,
@@ -81,7 +83,9 @@ clust_x_plot <- ggplot(data=clust_x_df,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   ggtitle("Locations clusters")+
-  scale_color_brewer(palette="Spectral")
+  scale_color_manual(values = c("#ABDDA4","#2B83BA"))
+
+  # scale_color_brewer(palette="Spectral")
 
 mean_patt_plot <- ggplot(data = mean_patt[[i]])+
   geom_point(aes(x=x,y=y,col=spat_mean))+

@@ -86,6 +86,8 @@ for(i in 1:length(main_c)){
   
   S_x_list[[i]] <- S_x_df
   
+  write.csv(S_x_df,file = paste0("data/",main_c[i],".csv"))
+  
   # Location dataframe
   loc_x_pred <- S_x_df %>%
     dplyr::select(cell,x,y) %>%
