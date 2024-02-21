@@ -12,17 +12,16 @@ clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
                          clust=res_t$data.clust$clust,
                          Year_Month=time.step_df$Year_Month)
 
-var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Hake_BoB")]
-var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Hake_BoB")]
+var_dim_1 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 1 & eigen_df_full$spp == "Hake")]
+var_dim_2 <- eigen_df_full$perc_var[which(eigen_df_full$dim == 2 & eigen_df_full$spp == "Hake")]
 
-clust_t_plot <- ggplot(data=clust_t_df,
-                       aes(x=dim1,y=dim2,
-                           col=clust,
-                           # shape=trimestre,
-                           label=Year_Month))+
+clust_t_plot <- ggplot(data=clust_t_df)+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
-  geom_point(size=1)+
-  geom_text(nudge_y = 1.4,check_overlap = T)+
+  geom_point(aes(x=dim1,y=dim2,
+                 col=clust,
+                 label=Year_Month),size=0.3,alpha=0.4)+
+  geom_text(data=clust_t_df, # [sample(x = 1:nrow(clust_t_df),size = 30,replace = F),]
+            aes(x=dim1,y=dim2,label=Year_Month,col=clust),check_overlap = T)+
   theme_minimal()+scale_color_brewer(palette = "Set1")+
   ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
@@ -67,7 +66,7 @@ clust_map_plot <- ggplot(data=clust_x_df)+
   theme(plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   ggtitle("Locations clusters")+
-  scale_color_manual(values = c("#ABDDA4","#2B83BA"))
+  scale_color_manual(values = c("#FC8D59","skyblue"))
 
 # scale_color_brewer(palette="Spectral")
 
@@ -83,7 +82,7 @@ clust_x_plot <- ggplot(data=clust_x_df,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
   ggtitle("Locations clusters")+
-  scale_color_manual(values = c("#ABDDA4","#2B83BA"))
+  scale_color_manual(values = c("#FC8D59","skyblue"))
 
   # scale_color_brewer(palette="Spectral")
 

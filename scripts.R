@@ -21,6 +21,7 @@ source("r/save_or_load.r")
 ##----------------------------------------------------------------------------------------------------
 ##----------------------------------- Make plots/analysis --------------------------------------------
 ##----------------------------------------------------------------------------------------------------
+source("r/plot_inputs_maps.R")
 
 ## Percentage of variance
 #------------------------
@@ -66,6 +67,19 @@ source("r/hake_bob_clust.R")
 
 ## Sea bass
 source("r/seabass_clust.R")
+
+title_sole <- ggdraw() + draw_label("Sole",hjust = 0.5, fontface='bold.italic',color = "darkgrey",size = 18, angle = 90)
+
+title_hake <- ggdraw() + draw_label("Hake",hjust = 0.5,fontface='bold.italic',color = "darkgrey",size = 18, angle = 90)
+
+title_seabass <- ggdraw() + draw_label("Sea Bass",hjust = 0.5,fontface='bold.italic',color = "darkgrey",size = 18, angle = 90)
+
+plot_clust <- cowplot::plot_grid(title_sole,proj_map_plot_sole,
+                                 title_hake,clust_plot_hake_bob,
+                                 title_seabass,clust_plot_seabass,nrow = 3,ncol = 2, 
+                                 rel_widths = c(0.1,1),align = "hv")
+
+ggsave("images/clust_full_plot.png",width = 13.5,height = 13.5)
 
 ## Seasonal patterns for sole
 #----------------------------

@@ -11,6 +11,7 @@ clust_t_df <- data.frame(dim1=res_t$data.clust[,1],
                          dim2=res_t$data.clust[,2],
                          clust=res_t$data.clust$clust,
                          Year_Month=time.step_df$Year_Month,
+                         Quarter=time.step_df$Quarter,
                          dim1_stand=PC_list[[i]]$X1,
                          dim2_stand=PC_list[[i]]$X2)
 
@@ -24,7 +25,7 @@ clust_t_plot <- ggplot(data=clust_t_df,
                            label=Year_Month))+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
   geom_point(size=1)+
-  geom_text(nudge_y = 1.4,check_overlap = T)+
+  geom_label(nudge_y = 1.4)+
   theme_minimal()+scale_color_brewer(palette = "Set1")+
   ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
@@ -150,10 +151,9 @@ proj_loc_plot <- ggplot()+
 proj_ts_plot <- ggplot()+
   geom_point(data=clust_t_df,
    aes(x=dim1,y=dim2,
-       fill=clust),shape=23,size=3)+
-  geom_text(data=clust_t_df,
-            aes(x=dim1,y=dim2,label=Year_Month),
-            nudge_y = 3,check_overlap = T)+
+       col=clust),size=0.3,alpha=0.35)+
+  geom_text(data=clust_t_df, # [sample(x = 1:nrow(clust_t_df),size = 30,replace = F),]
+                  aes(x=dim1,y=dim2,label=Year_Month,col=clust),check_overlap = T)+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
   theme_minimal()+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
@@ -161,11 +161,10 @@ proj_ts_plot <- ggplot()+
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  scale_color_brewer(palette="Spectral")+
-  scale_fill_brewer(palette = "Set1")+
+  scale_color_brewer(palette = "Set1")+
   ggtitle("Time steps clusters")
 
-proj_map_plot <- plot_grid(proj_ts_plot,
+proj_map_plot_sole <- plot_grid(proj_ts_plot,
                            proj_loc_plot,
                            clust_map_plot,
                            align = "v",ncol = 3)
