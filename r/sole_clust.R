@@ -205,3 +205,37 @@ evol_ab_clust <- ggplot(trend_clust,
 
 ggsave(paste0("images/Solea_solea/evol_ab_clust.png"),
        width=10,height=6)
+
+
+## Plot both time steps and locations
+colnames(clust_x_df)[7] <- "cluster_locations"
+colnames(clust_t_df)[3] <- "cluster_time.steps"
+plot1 <- ggplot()+
+  geom_point(data=clust_x_df,
+             aes(x=dim1_stand,y=dim2_stand,
+                 col=cluster_locations),alpha=0.75)+
+  scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))
+
+clust_tx_sole <- plot1 + 
+  geom_point(data=clust_t_df,
+             aes(x=dim1_stand,y=dim2_stand,
+                 fill=cluster_time.steps),col = "black",shape=22)+
+  geom_text(data=clust_t_df, # [sample(x = 1:nrow(clust_t_df),size = 30,replace = F),]
+            aes(x=dim1_stand - 0.11,y=dim2_stand,label=Year_Month),
+            check_overlap = T,size=4,fontface = "bold")+
+  geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+  theme_minimal()+
+  xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+  ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust=0.5))+
+  scale_fill_brewer(palette = "Set1")+
+  ggtitle("Locations and time steps clusters")
+
+clust_tx_sole2 <- plot_grid(clust_map_plot+
+                                 theme(text = element_text(size=8)),
+                               clust_tx_sole,
+                            ncol = 2,rel_widths = c(1/4,3/4))
+
+ggsave(paste0("images/Solea_solea/clust_tx.png"),
+       width=8,height=8)
