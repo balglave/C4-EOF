@@ -38,11 +38,14 @@ for(i in c(1,2,4)){
     
   }
   
+  if(i==1) save(data = S_x_df, file = "/home/balglave/Desktop/Research/st-dimension-reduction/data/S_x_df_sole.RData")
+  if(i==1) save(data = Zt_2, file = "/home/balglave/Desktop/Research/st-dimension-reduction/data/Zt_2_sole.RData")
+  
   ## Plots
   S_x_month_plot[[i]] <- ggplot()+
     geom_point(data=S_x_df,
                aes(x = x, y = y, col = S_x),size = 1,shape=16)+
-    scale_color_distiller(palette = "Spectral")+ 
+    scale_color_distiller(palette = "Spectral",trans = "log10")+ 
     theme_bw()+
     xlab("") + ylab("")+
     geom_sf(data = mapBase) +
