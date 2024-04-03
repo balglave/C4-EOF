@@ -235,7 +235,7 @@ clust_tx_sole <- plot1 +
 clust_tx_sole2 <- plot_grid(clust_map_plot+
                                  theme(text = element_text(size=8)),
                                clust_tx_sole,
-                            ncol = 2,rel_widths = c(1/4,3/4))
+                            ncol = 2,rel_widths = c(1/3,2/3))
 
 ggsave(paste0("images/Solea_solea/clust_tx.png"),
        width=8,height=8)
