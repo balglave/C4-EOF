@@ -82,3 +82,13 @@ Zt_month_plot_full <- cowplot::plot_grid(Zt_month_plot[[1]],
 input_full_plot <- cowplot::plot_grid(S_x_month_plot_full,Zt_month_plot_full,ncol = 2)
 
 ggsave("images/input_maps.png",width = 7.5*2,height = 7.5*3,bg = "white")
+
+S_x_month_plot_full <- cowplot::plot_grid(S_x_month_plot[[1]],
+                                          ncol = 1)
+
+Zt_month_plot_full <- cowplot::plot_grid(Zt_month_plot[[1]],
+                                         ncol = 1)
+
+input_full_plot <- cowplot::plot_grid(S_x_month_plot_full,Zt_month_plot_full,ncol = 2)
+
+ggsave("images/input_maps_sole.png",width = 7.5*2,height = 7.5,bg = "white")
