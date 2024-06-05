@@ -123,3 +123,17 @@ ggsave(filename = "images/Solea_solea/pres_EOF_map_plot.png",width = 30/(1.5*2),
 
 # +geom_point(aes(x = Year_Month,y=Expected_repro_sole_optim - 1),
 #              col="red",fill="red",alpha=0.5)
+
+sole_local_perc_var <- ggplot()+
+  geom_point(data=EOF_maps_spp %>% filter(EOF %in% c("EOF1","EOF2")), # Only plot the points that most contribute to the dimension
+             aes(x = x, y = y, col = ContribVar),size = 0.75,shape=16)+
+  scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T)+ 
+  theme_bw()+
+  xlab("") + ylab("")+
+  geom_sf(data = mapBase) +
+  coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
+  theme(legend.title = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90))+
+  facet_wrap(.~EOF)+
+  ggtitle("Sole")

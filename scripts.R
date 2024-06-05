@@ -52,6 +52,11 @@ source("r/picture_eof_ts.R")
 ## Average spatial pattern
 source("r/mean_pattern.R")
 
+## Percentage of variance
+local_perc_var <- plot_grid(sole_local_perc_var,hake_local_perc_var,seabass_local_perc_var,nrow = 1,align = "hv")
+ggsave("images/local_perc_var.png",width = 15,height = 5,bg = "white")
+
+
 ## Clustering analysis
 #---------------------
 source("r/function_hcpc_plot.R")

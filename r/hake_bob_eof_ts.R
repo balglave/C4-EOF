@@ -106,4 +106,16 @@ EOF_hake_bob_pres <- plot_grid(list_EOF_PC_hake_bob[[1]]+
 
 ggsave(filename = "images/Merluccius_merluccius_bob/EOF_map_plot.png",width = 30/(1.5*2),height = 15/(1.5 * 2) )
 
-# + geom_point(aes(x = Year_Month,y=Expected_repro_hake_optim - 1),col="red",alpha=0.5)
+hake_local_perc_var <- ggplot()+
+  geom_point(data=EOF_maps_spp %>% filter(EOF %in% c("EOF1","EOF2")), # Only plot the points that most contribute to the dimension
+             aes(x = x, y = y, col = ContribVar),size = 0.75,shape=16)+
+  scale_color_continuous_divergingx(palette = "Spectral", mid = 0,rev = T,limits = c(0,0.005))+ 
+  theme_bw()+
+  xlab("") + ylab("")+
+  geom_sf(data = mapBase) +
+  coord_sf(xlim = c(-6,-1), ylim = c(43,48), expand = FALSE)+
+  theme(legend.title = element_blank(),
+        panel.background = element_rect(fill = "white"),
+        axis.text.x = element_text(angle = 90))+
+  facet_wrap(.~EOF)+
+  ggtitle("Hake")

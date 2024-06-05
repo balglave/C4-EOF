@@ -20,5 +20,6 @@ ggplotColours <- function(n = 6, h = c(0, 360) + 15){
 }
 
 # Map
-mapBase <- ne_countries(scale = 'large', returnclass = "sf")
+mapBase <- ne_countries(scale = 'large', returnclass = "sf") %>% 
+  filter(admin  %in% c("France","Spain"))
 grid_projection <- "+proj=longlat +datum=WGS84"
