@@ -23,12 +23,14 @@ clust_t_plot <- ggplot(data=clust_t_df,
                            col=clust,
                            # shape=trimestre,
                            label=Year_Month))+
+  geom_text()+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
   geom_point(size=1)+
   geom_label(nudge_y = 1.4)+
   theme_minimal()+scale_color_brewer(palette = "Set1")+
   ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+  stat_ellipse()+
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
@@ -210,27 +212,44 @@ ggsave(paste0("images/Solea_solea/evol_ab_clust.png"),
 ## Plot both time steps and locations
 colnames(clust_x_df)[7] <- "cluster_locations"
 colnames(clust_t_df)[3] <- "cluster_time.steps"
+
 plot1 <- ggplot()+
   geom_point(data=clust_x_df,
              aes(x=dim1_stand,y=dim2_stand,
                  col=cluster_locations),alpha=0.75)+
   scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))
 
+clust_t_df$Quarter <- as.factor(clust_t_df$Quarter)
+
 clust_tx_sole <- plot1 + 
+  new_scale_colour() +
+  scale_shape_manual(values = c(21:24))+
   geom_point(data=clust_t_df,
              aes(x=dim1_stand,y=dim2_stand,
-                 fill=cluster_time.steps),col = "black",shape=22)+
-  geom_text(data=clust_t_df, # [sample(x = 1:nrow(clust_t_df),size = 30,replace = F),]
-            aes(x=dim1_stand - 0.11,y=dim2_stand,label=Year_Month),
-            check_overlap = T,size=4,fontface = "bold")+
+                 fill=cluster_time.steps,shape=Quarter),size=2.5)+
+  geom_point(data=clust_t_df,
+             aes(x=dim1_stand,y=dim2_stand,
+                 col=cluster_time.steps),size=1.25)+
+  scale_color_brewer(palette = "Set1")+
+  scale_fill_brewer(palette = "Set1")+
+  # stat_ellipse(data=clust_t_df,
+  #              aes(x=dim1_stand,y=dim2_stand,
+  #                  col=cluster_time.steps))+
+  # new_scale_colour() +
+  # stat_ellipse(data=clust_t_df,
+  #              aes(x=dim1_stand,y=dim2_stand,
+  #                  col=Quarter))+
+  # geom_text(data=clust_t_df, # [sample(x = 1:nrow(clust_t_df),size = 30,replace = F),]
+  #           aes(x=dim1_stand - 0.11,y=dim2_stand,label=Year_Month),
+  #           check_overlap = T,size=4,fontface = "bold")+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
   theme_minimal()+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
   ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
   theme(aspect.ratio = 1,
         plot.title = element_text(hjust=0.5))+
-  scale_fill_brewer(palette = "Set1")+
-  ggtitle("Locations and time steps clusters")
+  ggtitle("Locations and time steps clusters")+
+  guides(shape = guide_legend(order = 2))
 
 clust_tx_sole2 <- plot_grid(clust_map_plot+
                                  theme(text = element_text(size=8)),
