@@ -79,13 +79,22 @@ title_hake <- ggdraw() + draw_label("Hake",hjust = 0.5,fontface='bold.italic',co
 
 title_seabass <- ggdraw() + draw_label("Sea Bass",hjust = 0.5,fontface='bold.italic',color = "darkgrey",size = 18, angle = 90)
 
-plot_clust <- cowplot::plot_grid(title_sole,clust_tx_sole2,
-                                 title_hake,clust_tx_hake2,
-                                 title_seabass,clust_tx_seabass2,nrow = 3,
+plot_clust <- cowplot::plot_grid(title_sole,clust_maptx_sole2,
+                                 title_hake,clust_maptx_hake2,
+                                 title_seabass,clust_maptx_seabass2,nrow = 3,
                                  ncol = 2, 
                                  rel_widths = c(0.1,1),align = "hv")
 
 ggsave("images/clust_full_plot.png",width = 5*2.5,height = 5*3)
+
+
+plot_clust <- cowplot::plot_grid(clust_t_sole3+theme(title = element_text(size = 16,face = "bold")),
+                                 clust_t_hake3+theme(title = element_text(size = 16,face = "bold")),
+                                 clust_t_seabass3+theme(title = element_text(size = 16,face = "bold")),
+                                 ncol = 3,align = "hv")
+
+ggsave("images/clust_full_plot_SM.png",width = 5*4,height = 7.5)
+
 
 ## Seasonal patterns for sole
 #----------------------------

@@ -74,7 +74,7 @@ clust_map_plot <- ggplot(data=clust_x_df)+
   coord_sf(xlim = xlims, ylim = ylims, expand = FALSE)+
   theme(plot.title = element_text(hjust=0.5),
         legend.title = element_blank())+
-  ggtitle("Locations clusters")+
+  ggtitle("Spatial clusters")+
   scale_color_manual(values = c("#FC8D59","skyblue"))
 
 # scale_color_brewer(palette="Spectral")
@@ -131,12 +131,12 @@ dev.off()
 
 
 ## Plot both time steps and locations
-colnames(clust_x_df)[7] <- "cluster_locations"
+colnames(clust_x_df)[7] <- "Spatial_clusters"
 colnames(clust_t_df)[3] <- "cluster_time.steps"
 plot1 <- ggplot()+
   geom_point(data=clust_x_df,
              aes(x=dim1_stand,y=dim2_stand,
-                 col=cluster_locations),alpha=0.75)+
+                 col=Spatial_clusters),alpha=0.75)+
   scale_color_manual(values = c("#FC8D59","skyblue"))
 
 clust_t_df$Quarter <- NA
@@ -159,8 +159,8 @@ clust_tx_hake <- plot1 +
              aes(x=dim1_stand,y=dim2_stand,
                  col=cluster_time.steps),size=1.25)+
   scale_color_brewer(palette = "Set1")+
-  scale_fill_brewer(palette = "Set1")+
-  # stat_ellipse(data=clust_t_df,
+  scale_fill_manual(values = c("#FC8D59","skyblue"))+
+# stat_ellipse(data=clust_t_df,
   #              aes(x=dim1_stand,y=dim2_stand,
   #                  col=cluster_time.steps))+
   # new_scale_colour() +
@@ -179,10 +179,71 @@ clust_tx_hake <- plot1 +
   ggtitle("Locations and time steps clusters")+
   guides(shape = guide_legend(order = 2))
 
-clust_tx_hake2 <- plot_grid(clust_map_plot+
+clust_maptx_hake2 <- plot_grid(clust_map_plot+
                               theme(text = element_text(size=8)),
                             clust_tx_hake,
                             ncol = 2,rel_widths = c(1/3,2/3))
 
 ggsave(paste0("images/Merluccius_merluccius_bob/clust_tx.png"),
        width=8 + 4,height=8)
+
+# With polygons
+
+for(i in 1:2){
+  
+  clust_x_df_2 <- clust_x_df %>% filter(Spatial_clusters == i)
+  chull_res <- chull(clust_x_df_2$dim1,clust_x_df_2$dim2)
+  
+  if(i == 1) clust_x_df_3 <- clust_x_df_2[chull_res,]
+  if(i != 1) clust_x_df_3 <- rbind(clust_x_df_3,clust_x_df_2[chull_res,])
+  
+}
+
+plot2 <- ggplot()+
+  geom_polygon(data=clust_x_df_3,
+               aes(x=dim1_stand,y=dim2_stand,
+                   fill=Spatial_clusters),alpha=0.65,col=NA)+
+  scale_fill_manual(values = c("#FC8D59","skyblue"))+
+  # geom_point(data=clust_x_df,
+  #            aes(x=dim1_stand,y=dim2_stand,
+  #                col=Spatial_clusters),shape = 20,size=0.2)+
+  scale_color_brewer(palette = "Set1")
+
+clust_t_df$Season <- clust_t_df$cluster_time.steps
+
+clust_tx_hake2 <- plot2 + 
+  ggnewscale::new_scale_fill()+
+  geom_point(data=clust_t_df,
+             aes(x=dim1_stand,y=dim2_stand,
+                 fill=Season),shape = 22,size=2.5)+
+  scale_fill_brewer(palette = "Set1")+
+  geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+  theme_minimal()+
+  xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+  ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust=0.5))+
+  ggtitle("Spatial clusters and seasons")+
+  guides(shape = guide_legend(order = 2))
+
+clust_maptx_hake2 <- plot_grid(clust_map_plot+
+                                 theme(text = element_text(size=8)),
+                               clust_tx_hake2,
+                               ncol = 2,rel_widths = c(1/3,2/3))
+
+clust_t_hake3 <- ggplot()+
+  geom_point(data=clust_t_df,
+             aes(x=dim1_stand,y=dim2_stand,
+                 fill=Season),shape = 22,size=2.5)+
+  scale_fill_brewer(palette = "Set1")+
+  geom_hline(yintercept=0)+geom_vline(xintercept=0)+
+  theme_minimal()+
+  xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
+  ylab(paste0("Dim2 - ",round(var_dim_2*100,digits = 1)," %"))+
+  theme(aspect.ratio = 1,
+        plot.title = element_text(hjust=0.5))+
+  ggtitle("Hake")+
+  guides(shape = guide_legend(order = 2))+
+  geom_text(data=clust_t_df, # [sample(x = 1:nrow(clust_t_df),size = 30,replace = F),]
+            aes(x=dim1_stand - 0.11,y=dim2_stand,label=Year_Month),
+            check_overlap = T,size=4,fontface = "bold")
