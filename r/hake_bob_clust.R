@@ -52,6 +52,11 @@ res_x <- HCPC(-hcpc_data,nb.clust = 2,graph = F)
 xlims <- range(pretty(loc_x_list[[i]]$x))
 ylims <- range(pretty(loc_x_list[[i]]$y))
 
+res_x$data.clust$clust2 <- NA
+res_x$data.clust$clust2[which(res_x$data.clust$clust == 1)] <- 2
+res_x$data.clust$clust2[which(res_x$data.clust$clust == 2)] <- 1
+res_x$data.clust$clust2 <- factor(res_x$data.clust$clust2)
+res_x$data.clust$clust <- res_x$data.clust$clust2
 
 clust_x_df <- cbind(loc_x_list[[i]],
                     dim1=res_x$data.clust[,1],
@@ -199,6 +204,7 @@ for(i in 1:2){
   
 }
 
+
 plot2 <- ggplot()+
   geom_polygon(data=clust_x_df_3,
                aes(x=dim1_stand,y=dim2_stand,
@@ -209,7 +215,10 @@ plot2 <- ggplot()+
   #                col=Spatial_clusters),shape = 20,size=0.2)+
   scale_color_brewer(palette = "Set1")
 
-clust_t_df$Season <- clust_t_df$cluster_time.steps
+clust_t_df$Season <- NA
+clust_t_df$Season[which(clust_t_df$cluster_time.steps == 1)] <- "2: spring to autumn"
+clust_t_df$Season[which(clust_t_df$cluster_time.steps == 2)] <- "1: winter"
+clust_t_df$Season <- as.factor(clust_t_df$Season)
 
 clust_tx_hake2 <- plot2 + 
   ggnewscale::new_scale_fill()+

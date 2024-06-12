@@ -268,14 +268,21 @@ plot2 <- ggplot()+
   scale_fill_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))+
   scale_color_manual(values = c("#D53E4F","#FC8D59","#FEE08B","#E6F598","skyblue","#3288BD"))
 
-clust_t_df$Season <- clust_t_df$cluster_time.steps
+clust_t_df$Season <- NA
+clust_t_df$Season[which(clust_t_df$cluster_time.steps == 1)] <- "1: winter"
+clust_t_df$Season[which(clust_t_df$cluster_time.steps == 2)] <- "3: autumn"
+clust_t_df$Season[which(clust_t_df$cluster_time.steps == 3)] <- "2: spring and summer"
+clust_t_df$Season <- factor(clust_t_df$Season,levels = c("1: winter",
+                                                         "2: spring and summer",
+                                                         "3: autumn"))
 
 clust_tx_sole2 <- plot2 + 
   ggnewscale::new_scale_fill()+
   geom_point(data=clust_t_df,
              aes(x=dim1_stand,y=dim2_stand,
                  fill=Season),shape = 22,size=2.5)+
-  scale_fill_brewer(palette = "Set1")+
+  scale_fill_manual(values = c("#E41A1C","#4DAF4A","#377EB8"))+
+  # scale_fill_brewer(palette = "Set1")+
   geom_hline(yintercept=0)+geom_vline(xintercept=0)+
   theme_minimal()+
   xlab(paste0("Dim1 - ",round(var_dim_1*100,digits = 1)," %"))+
