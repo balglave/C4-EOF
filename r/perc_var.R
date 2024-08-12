@@ -33,3 +33,7 @@ eigen_df_plot <- ggplot(eigen_df_full,
              color = "red",linewidth=0.75,linetype="dashed")
 
 ggsave(filename = "images/eigen_df_plot.png",width = 7.5,height = 3)
+
+tiff("images/eigen_df_plot.tiff",width = 7.5,height = 3, units = 'in', res = 200)
+print(eigen_df_plot)
+dev.off()
